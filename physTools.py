@@ -36,7 +36,6 @@ ecal_rz2layer = {}
 for rz, i in zip(ecal_zs_round,range(1,35)):
     ecal_rz2layer[rz] = i
 
-
 ###########################
 # Miscellaneous
 ###########################
@@ -75,10 +74,9 @@ def dist(p1, p2):
 def angle(vec):
     return np.degrees(np.arccos(vec[2]/mag(vec)))
 
-
-###########################
-# Get e/gamma SP hit info
-###########################
+##################################################
+# Electron/photon target SP hit info
+##################################################
 
 # Electron Target SP hit
 def electronTargetSPHit(targetSPHits):
@@ -115,6 +113,10 @@ def gammaTargetSPHit(targetSPHits):
 
     return hitOfInt
 
+################################################
+# Electron/photon ecal SP hit info
+################################################
+
 # Electron ECal SP hit
 def electronEcalSPHit(ecalSPHits):
 
@@ -149,4 +151,3 @@ def gammaEcalSPHit(ecalSPHits):
             pmax = mag(hitOfInt.getMomentum())
 
     return hitOfInt
-
