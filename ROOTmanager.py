@@ -176,10 +176,10 @@ class TreeMaker:
         # Add a new branch to write to
 
         self.branches_info[branch_name] = {'rtype': rtype, 'default': default_value}
-        self.branches[branch_name] = np.zeros(1, dtype = rtype)
+        self.branches[branch_name] = np.zeros(1, dtype=rtype)
         if str(rtype) == "<type 'float'>" or str(rtype) == "<class 'float'>":
             self.tree.Branch(branch_name, self.branches[branch_name], branch_name + "/D")
-        elif str(rtype) == "<type 'int'>" or str(rtype) == "<class 'int'>":
+        elif str(rtype) == "<type 'int'>" or str(rtype) == "<class 'float'>":
             self.tree.Branch(branch_name, self.branches[branch_name], branch_name + "/I")
         # ^ probably use cases based on rtype to change the /D if needed?
 
