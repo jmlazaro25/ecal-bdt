@@ -305,6 +305,8 @@ def buildNeighborMaps():
     NNNMap = {}
 
     for centerID in cellModulePositionMap:
+        NNMap[centerID] = []
+        NNNMap[centerID] = []
         centerX = cellModulePositionMap[centerID][0]
         centerY = cellModulePositionMap[centerID][1]
 
@@ -314,12 +316,40 @@ def buildNeighborMaps():
             dist = math.sqrt((probeX - centerX)**2 + (probeY - centerY)**2)
 
             if (dist > cellr) and (dist <= 3*cellr):
-                NNMap[centerID] = probeID
+                NNMap[centerID].append(probeID)
 
             elif (dist > 3*cellr) and (dist <= 4.5*cellr):
-                NNNMap[centerID] = probeID
+                NNNMap[centerID].append(probeID)
 
     return NNMap, NNNMap
 
 # Build the neighbor maps
 NNMap, NNNMap = buildNeighborMaps()
+
+######################################
+# Ecal hex readout functions
+######################################
+
+def getNN(ID):
+    centerID = [centerID_ for centerID_ in NNMap if ((centerID_.getModuleID() == ID.getModuleID()) and (centerID_.getCellID() == ID.getCellID()))][0]
+    return [EcalID(ID.getLayerID(), probeID.getModuleID(), probeID.getCellID()) for probeID in NNMap[centerID]]
+
+def isNN(centroid, probe):
+    for ID in getNN(centroid):
+        if ((ID.getLayerID() == probe.getLayerID()) and (ID.getModuleID() == probe.getModuleID())) and (ID.getCellID() == probe.getCellID()):
+            return True
+    return False
+
+def getNNN(ID):
+    centerID = [centerID_ for centerID_ in NNNMap if ((centerID_.getModuleID() == ID.getModuleID()) and (centerID_.getCellID() == ID.getCellID()))][0]
+    return [EcalID(ID.getLayerID(), probeID.getModuleID(), probeID.getCellID()) for probeID in NNNMap[centerID]]
+
+def isNNN(centroid, probe):
+    for ID in getNNN(centroid):
+        if ((ID.getLayerID() == probe.getLayerID()) and (ID.getModuleID() == probe.getModuleID())) and (ID.getCellID() == probe.getCellID()):
+            return True
+    return False
+
+def getCellCenterAbsolute(cellModuleID):
+    flatID = [flatID_ for flatID_ in cellModulePositionMap if ((flatID_.getModuleID() == cellModuleID.getModuleID()) and (flatID_.getCellID() == cellModuleID.getCellID()))][0]
+    return cellModulePositionMap[flatID]
