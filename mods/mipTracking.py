@@ -1,6 +1,6 @@
 import math
 import numpy as np
-import physTools
+from mods import physTools
 
 
 # NOTE: Don't forget to order hits by reverse zpos before using any of this

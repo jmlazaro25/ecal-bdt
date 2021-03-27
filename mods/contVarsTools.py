@@ -1,7 +1,6 @@
-import ecalHexReadoutTools
-import ecalIDTools
 import math
 import numpy as np
+from mods import ecalHexReadoutTools, ecalIDTools
 
 nEcalLayers = 34
 

@@ -1,6 +1,6 @@
-import ecalIDTools
 import math
 import numpy as np
+from mods import ecalIDTools
 
 gap = 1.5
 moduler = 85.0

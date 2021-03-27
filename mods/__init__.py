@@ -3,5 +3,5 @@ __all__ = ['ROOTmanager',
            'mipTracking',
            'contVarsTools',
            'ecalHexReadoutTools',
-           'ecalIDTools.py'
+           'ecalIDTools'
            ]
