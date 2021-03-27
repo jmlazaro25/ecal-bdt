@@ -2,9 +2,8 @@ import os
 import math
 import ROOT as r
 import numpy as np
-import physTools
-import mipTracking
-import ROOTmanager as manager
+from mods import ROOTmanager as manager
+from mods import physTools, mipTracking
 r.gSystem.Load('/home/jmlazaro/research/ldmx-sw/install/lib/libEvent.so')
 
 
