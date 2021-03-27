@@ -1,3 +1,4 @@
+import math
 import numpy as np
 # all space values in mm unless otherwise noted
 
@@ -13,6 +14,8 @@ sin60 = np.sin(np.radians(60))
 module_radius = 85. # dist form center to midpoint of side
 module_side = module_radius/sin60
 module_gap = 1.5 # space between sides of side-by-side mods
+
+cellWidth = 8.7
 
 ecal_layerZs = ecal_front_z + np.array([7.850,   13.300,  26.400,  33.500,  47.950,
                                         56.550,  72.250,  81.350,  97.050,  106.150,
@@ -59,26 +62,22 @@ def recE(siEnergy, layer):
     return ((siEnergy/mipSiEnergy)*layerWeights[layer-1]+siEnergy)*secondOrderEnergyCorrection
 
 # 2D Rotation
-def rotate(point,ang):
+def rotate(point,ang): # move to math eventually
     ang = np.radians(ang)
     rotM = np.array([[np.cos(ang),-np.sin(ang)],
                     [np.sin(ang), np.cos(ang)]])
     return list(np.dot(rotM,point))
 
+# Get layer number from hitZ
+def layerofHitZ(hitZ, index):
+    num = ecal_rz2layer[ round(hitZ) ]
+    if index == 1: return num
+    elif index == 0: return num - 1
+    else: print('index should be 0 or 1')
+
 # Get Z in ecal_layerZs from hitZ
 def layerZofHitZ(hitZ):
-    best_layerZ = None
-    min_dist = 1000.0
-    for layerZ in ecal_layerZs:
-        dist = abs(hitZ - layerZ)
-        if dist < min_dist:
-            best_layerZ = layerZ
-            min_dist = dist
-    return best_layerZ
-
-# Get layer number in ecal_layerZs from hitZ
-def layerofHitZ(hitZ):
-    return ecal_layerZs.tolist().index( layerZofHitZ(hitZ) )
+    return ecal_layerZs[ layerofHitZ(hitZ,0) ]
 
 # Project poimt to z_final
 def projection(pos_init, mom_init, z_final): # infty >.<
@@ -92,7 +91,7 @@ def layerIntercepts(pos,mom,layerZs=ecal_layerZs):
 
 # Magnitude of whatever
 def mag(iterable):
-    return np.sqrt(sum([x**2 for x in iterable]))
+    return math.sqrt(sum([x**2 for x in iterable]))
 
 # Return normalized np array
 def unit(arrayy):
@@ -109,8 +108,8 @@ def dist(p1, p2):
 
 # Angle with Z
 def angle(vec, units):
-    if units=='degrees': return np.degrees(np.arccos(vec[2]/mag(vec)))
-    elif units=='radians': return np.arccos(vec[2]/mag(vec))
+    if units=='degrees': return math.acos(vec[2]/mag(vec))*180.0/math.pi
+    elif units=='radians': return math.acos(vec[2]/mag(vec))
     else: print('\nSpecify valid angle unit ("degrees" or "randians")')
 
 
@@ -125,7 +124,7 @@ def electronTargetSPHit(targetSPHits):
     pmax = 0
     for hit in targetSPHits:
 
-        if hit.getPosition()[2] > sp_thickness + sp_thickness or\
+        if hit.getPosition()[2] > sp_thickness + sp_thickness + 0.5 or\
                 hit.getMomentum()[2] <= 0 or\
                 hit.getTrackID() != 1 or\
                 hit.getPdgID() != 11:
@@ -167,7 +166,7 @@ def electronSPHits(ecalSPHits, targetSPHits):
 # Return photon position and momentum at target
 def gammaTargetInfo(eTargetSPHit):
 
-    gTarget_pvec = np.array([4000,0,0]) - np.array(eTargetSPHit.getMomentum())
+    gTarget_pvec = np.array([0,0,4000]) - np.array(eTargetSPHit.getMomentum())
 
     return eTargetSPHit.getPosition(), gTarget_pvec
 
