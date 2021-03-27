@@ -1,8 +1,10 @@
 import os
+import math
 import ROOT as r
 import numpy as np
-import ROOTmanager as manager
 import physTools
+import mipTracking
+import ROOTmanager as manager
 r.gSystem.Load('/home/jmlazaro/research/ldmx-sw/install/lib/libEvent.so')
 
 
@@ -23,9 +25,9 @@ def main():
             # Segmentation Vars
             # ----------------
             # MIP tracking variables
-            #'nStraightTracks':   {'rtype': int,   'default': 0 },
+            'nStraightTracks':   {'rtype': int,   'default': 0 },
             #'nLinregTracks':     {'rtype': int,   'default': 0 },
-            #'firstNearPhLayer':  {'rtype': int,   'default': 0 },
+            'firstNearPhLayer':  {'rtype': int,   'default': 33 },
             'epAng':             {'rtype': float, 'default': 0.},
             'epSep':             {'rtype': float, 'default': 0.}
             }
@@ -52,7 +54,7 @@ def main():
                                          )
 
         # RUN
-        proc.extraf = proc.tfMaker.wq # gets executed at the end of run()
+        proc.extraf = proc.tfMaker.wq # Gets executed at the end of run()
         proc.run(maxEvents=maxEvent)
 
     print('\nDone!\n')
@@ -65,7 +67,9 @@ def event_process(self):
     #if not self.event_count%4 == 0: return 0
 
     # Initialize BDT input variables w/ defaults
-    self.tfMaker.resetBranches()
+    feats = {}
+    for branch_name in self.tfMaker.branches_info:
+        feats[branch_name] = self.tfMaker.branches_info[branch_name]['default']
     
     ###################################
     # Compute BDT input variables
@@ -82,21 +86,32 @@ def event_process(self):
     # Get electron and photon trajectories
     e_traj = g_traj = None
     if e_present:
-        e_traj = physTools.layerIntercepts(e_ecalPos, e_ecalP)
 
         # Photon Info from target
         e_targetHit = physTools.electronTargetSPHit(self.targetSPHits)
         if e_targetHit != None:
             g_targPos, g_targP = physTools.gammaTargetInfo(e_targetHit)
-        else: g_targPos = g_targP = np.zeros(3)
-        g_traj = physTools.layerIntercepts(g_targPos, g_targP) # infty >.<
+        else:  # Should about never happen -> division by 0 in g_traj
+            print('no e at targ!')
+            g_targPos = g_targP = np.zeros(3)
+        
+        e_traj = physTools.layerIntercepts(e_ecalPos, e_ecalP)
+        g_traj = physTools.layerIntercepts(g_targPos, g_targP)
 
     # Recoil electron momentum magnitude and angle with z-axis
-    recoilPMag  = physTools.mag(  e_ecalP                 ) if e_present      else -1.0
-    recoilTheta = physTools.angle(e_ecalP, units='radians') if recoilPMag > 0 else -1.0
+    feats['recoilPT'] = recoilPMag = physTools.mag(  e_ecalP ) if e_present      else -1.0
+    recoilTheta =   physTools.angle(e_ecalP, units='radians') if recoilPMag > 0 else -1.0
+
+    # Set electron RoC binnings
+    e_radii = physTools.radius68_thetalt10_plt500
+    if recoilTheta < 10 and recoilPMag >= 500: e_radii = physTools.radius68_thetalt10_pgt500
+    elif recoilTheta >= 10 and recoilTheta < 20: e_radii = physTools.radius68_theta10to20
+    elif recoilTheta >= 20: e_radii = physTools.radius68_thetagt20
+
+    # Always use default binning for photon RoC
+    g_radii = physTools.radius68_thetalt10_plt500
 
     # Big data
-    nReadoutHits = 0
     trackingHitList = []
 
     # Major ECal loop
@@ -106,8 +121,8 @@ def event_process(self):
             # idd = hitID(hit) # (maybe .getID() or .get_id(/)) and this abv cond in cxx v
             # See https://github.com/LDMX-Software/ldmx-sw/blob/23be9750016eab9cc16a4a933cd584363e05dfba/Event/include/Event/CalorimeterHit.h
 
-            nReadoutHits += 1
-            layer = physTools.layerofHitZ( hit.getZPos() )
+            feats['nReadoutHits'] += 1
+            layer = physTools.layerofHitZ( hit.getZPos(), index=0 )
             xy_pair = ( hit.getXPos(), hit.getYPos() )
 
             # Distance to electron trajectory
@@ -116,21 +131,18 @@ def event_process(self):
                 distance_e_traj = physTools.dist(xy_pair, xy_e_traj)
             else: distance_e_traj = -1.0
 
-            # Distance to photon trajectory (ickily repetative; possibley)
+            # Distance to photon trajectory
             if g_traj != None:
                 xy_g_traj = ( g_traj[layer][0], g_traj[layer][1] )
                 distance_g_traj = physTools.dist(xy_pair, xy_g_traj)
             else: distance_g_traj = -1.0
 
             # Build MIP tracking hit list; (outside electron region or electron missing)
-            """
             if distance_e_traj >= e_radii[layer] or distance_e_traj == -1.0:
                 hitData = physTools.HitData()
-                hitData.pos = np.array( [xy_pair[0],xy_pair[1],\
-                                         physTools.layerofHitZ( hit.getZPos() )] )
+                hitData.pos = np.array( [xy_pair[0],xy_pair[1],hit.getZPos() ] )
                 hitData.layer = layer
-                trackingHitList.apped(hitData)
-            """
+                trackingHitList.append(hitData) 
     
     # MIP tracking starts here
 
@@ -152,54 +164,40 @@ def event_process(self):
         e_norm = physTools.unit(evec)
         g_norm = physTools.unit(gvec)
 
-        # Unused epAng and epSep ???
-        epAng  = np.degrees( np.arccos( physTools.dot(e_norm,g_norm) ) )
-        epSep  = physTools.dist( e_traj_start, g_traj_start )
+        # Unused epAng and epSep ??? And why Ang instead of dot ???
+        feats['epAng'] = epAng = math.acos( physTools.dot(e_norm,g_norm) )*180.0/math.pi
+        feats['epSep'] = epSep = physTools.dist( e_traj_start, g_traj_start )
 
     else:
 
         # Electron trajectory is missing so all hits in Ecal are okay to use
         # Pick trajectories so they won'trestrict tracking, far outside the Ecal
 
-        e_traj_start = np.array([999 ,999 ,0   ])
-        e_traj_end   = np.array([999 ,999 ,999 ])
-        g_traj_start = np.array([1000,1000,0   ])
-        g_traj_end   = np.array([1000,1000,1000])
-        epAng        = 3.0 + 1.0 # Don't cut on these in this case
-        epSep        = 10.0 + 1.0
+        e_traj_start   = np.array([999 ,999 ,0   ])
+        e_traj_end     = np.array([999 ,999 ,999 ])
+        g_traj_start   = np.array([1000,1000,0   ])
+        g_traj_end     = np.array([1000,1000,1000])
+        feats['epAng'] = epAng = 3.0 + 1.0 # Don't cut on these in this case
+        feats['epSep'] = epSep = 10.0 + 1.0
 
     # Near photon step: Find the first layer of the ECal where a hit near the projected
     # photon trajectory is found
     # Currently unusued pending further study; performance has dropped between v9 and v12
-    #firstNearPhLayer = 33;
 
-    # In progress
-    """
     if g_traj != None: # If no photon trajectory, leave this at the default
-        for(std::vector<HitData>::iterator it = trackingHitList.begin(); it != trackingHitList.end(); ++it) {
-            float ehDist = sqrt(pow((*it).pos.X() - photon_trajectory[(*it).layer].first, 2)
-                                   + pow((*it).pos.Y() - photon_trajectory[(*it).layer].second, 2));
+        for hit in trackingHitList:
+            if hit.layer < feats['firstNearPhLayer'] and\
+                    physTools.dist( hit.pos[:2],g_traj[hit.layer]) < physTools.cellWidth:
+                feats['firstNearPhLayer'] = hit.layer
 
-            if(ehDist < 8.7 && (*it).layer < firstNearPhLayer) {
-                        firstNearPhLayer = (*it).layer;
-    """
+    # Order hits by zpos for efficiency
+    trackingHitList.sort(key=lambda hd: hd.layer, reverse=True)
 
-    ###################################
-    # Reassign BDT input variables 
-    ###################################
-    self.tfMaker.branches['nReadoutHits'][0]           = nReadoutHits
-    self.tfMaker.branches['recoilPT'][0]               = recoilPMag
-    #self.tfMaker.branches['nStraightTracks'][0]       = nStraightTracks
-    #self.tfMaker.branches['nLinregTracks'][0]         = nLingregTracks
-    #self.tfMaker.branches['firstNearPhLayer'][0]      = firstNearPhLayer
-    self.tfMaker.branches['epAng'][0]                  = epAng
-    self.tfMaker.branches['epSep'][0]                  = epSep
+    # Find MIP tracks
+    feats['nStraightTracks'] = mipTracking.nStraightTracks(trackingHitList)
 
-    ###################################
     # Fill the tree with values for this event
-    ###################################
-    #print('hennnnllllooooo')
-    self.tfMaker.tree.Fill()
+    self.tfMaker.fillEvent(feats)
 
 if __name__ == "__main__":
     main()
