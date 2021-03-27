@@ -1,10 +1,13 @@
+import ecalIDTools
 import math
 import numpy as np
 
-from ecalIDTools import EcalID
-
 gap = 1.5
 moduler = 85.0
+layerZPositions = [7.850, 13.300, 26.400, 33.500, 47.950, 56.550, 72.250, 81.350, 97.050, 106.150,
+                   121.850, 130.950, 146.650, 155.750, 171.450, 180.550, 196.250, 205.350, 221.050,
+                   230.150, 245.850, 254.950, 270.650, 279.750, 298.950, 311.550, 330.750, 343.350,
+                   362.550, 375.150, 394.350, 406.950, 426.150, 438.750]
 ecalFrontZ = 240.5
 nCellRHeight = 35.3
 
@@ -46,7 +49,7 @@ def honeycomb(xstart, ystart, a, k, s):
             x[5] = x[2]
             y[5] = y[4] - 0.5*a
 
-            hexaVerts.append([(x[k], y[k]) for k in range(0, 6)])
+            hexaVerts.append(np.array([(x[k], y[k]) for k in range(0, 6)]))
 
             xtemp += a*math.sqrt(3)
 
@@ -247,7 +250,7 @@ def buildCellMap():
                     actual_x[i] = vertex_x[i]
                     actual_y[i] = vertex_y[i]
 
-            ecalPolyVerts.append([(actual_x[k], actual_y[k]) for k in range(0, 8) if ((actual_x[k] is not None) and (actual_y[k] is not None))])
+            ecalPolyVerts.append(np.array([(actual_x[k], actual_y[k]) for k in range(0, 8) if ((actual_x[k] is not None) and (actual_y[k] is not None))]))
 
             hexaXMax = sorted(hexa, key = lambda v: v[0])[-1][0]
             hexaXMin = sorted(hexa, key = lambda v: v[0])[0][0]
@@ -284,7 +287,7 @@ def buildCellModuleMap():
             cellY = cellPositionMap[cellID][1]
             x = cellX + moduleX
             y = cellY + moduleY
-            cellModulePositionMap[EcalID(0, moduleID, cellID)] = (x, y)
+            cellModulePositionMap[ecalIDTools.EcalID(0, moduleID, cellID)] = (x, y)
 
     return cellModulePositionMap
 
@@ -305,6 +308,8 @@ def buildNeighborMaps():
     NNNMap = {}
 
     for centerID in cellModulePositionMap:
+        NNMap[centerID] = []
+        NNNMap[centerID] = []
         centerX = cellModulePositionMap[centerID][0]
         centerY = cellModulePositionMap[centerID][1]
 
@@ -314,12 +319,49 @@ def buildNeighborMaps():
             dist = math.sqrt((probeX - centerX)**2 + (probeY - centerY)**2)
 
             if (dist > cellr) and (dist <= 3*cellr):
-                NNMap[centerID] = probeID
+                NNMap[centerID].append(probeID)
 
             elif (dist > 3*cellr) and (dist <= 4.5*cellr):
-                NNNMap[centerID] = probeID
+                NNNMap[centerID].append(probeID)
+
+    for centerID in NNMap:
+        NNMap[centerID] = np.array(NNMap[centerID])
+
+    for centerID in NNNMap:
+        NNNMap[centerID] = np.array(NNNMap[centerID])
 
     return NNMap, NNNMap
 
 # Build the neighbor maps
 NNMap, NNNMap = buildNeighborMaps()
+
+######################################
+# Ecal hex readout functions
+######################################
+
+def getNN(ID):
+    centerID = [centerID_ for centerID_ in NNMap if ecalIDTools.isFlatEcalID(ID, centerID_)][0]
+    return np.array([ecalIDTools.EcalID(ID.getLayerID(), probeID.getModuleID(), probeID.getCellID()) for probeID in NNMap[centerID]])
+
+def isNN(ID, probeID):
+    for probeID_ in getNN(ID):
+        if ecalIDTools.isSameEcalID(probeID, probeID_):
+            return True
+    return False
+
+def getNNN(ID):
+    centerID = [centerID_ for centerID_ in NNNMap if ecalIDTools.isFlatEcalID(ID, centerID_)][0]
+    return np.array([ecalIDTools.EcalID(ID.getLayerID(), probeID.getModuleID(), probeID.getCellID()) for probeID in NNNMap[centerID]])
+
+def isNNN(ID, probeID):
+    for probeID_ in getNNN(ID):
+        if ecalIDTools.isSameEcalID(probeID, probeID_):
+            return True
+    return False
+
+def getZPosition(layerID):
+    return ecalFrontZ + layerZPositions[layerID]
+
+def getCellCenterAbsolute(ID):
+    flatID = [flatID_ for flatID_ in cellModulePositionMap if ecalIDTools.isFlatEcalID(ID, flatID_)][0]
+    return cellModulePositionMap[flatID]

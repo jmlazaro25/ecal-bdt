@@ -9,16 +9,16 @@ CELL_SHIFT = 0
 # Hit information from hitID
 ######################################
 
-# Function to extract the layer from a hitID
-def IDToLayer(hitID):
+# Function to extract the layerID from a hitID
+def hitIDToLayerID(hitID):
     return (hitID>>LAYER_SHIFT)&LAYER_MASK
 
-# Function to extract the module from a hitID
-def IDToModule(hitID):
+# Function to extract the moduleID from a hitID
+def hitIDToModuleID(hitID):
     return (hitID>>MODULE_SHIFT)&MODULE_MASK
 
-# Function to extract the cell from a hitID
-def IDToCell(hitID):
+# Function to extract the cellID from a hitID
+def hitIDToCellID(hitID):
     return (hitID>>CELL_SHIFT)&CELL_MASK
 
 ################################################
@@ -27,29 +27,45 @@ def IDToCell(hitID):
 
 class EcalID:
 
-    def __init__(self, layer, module, cell):
+    def __init__(self, layerID, moduleID, cellID):
 
-        self.layer = layer
-        self.module = module
-        self.cell = cell
+        self.layerID = layerID
+        self.moduleID = moduleID
+        self.cellID = cellID
 
-    def setLayer(self, newLayer):
-        self.layer = newLayer
+    def setLayerID(self, newLayerID):
+        self.layerID = newLayerID
 
-    def getLayer(self):
-        return self.layer
+    def getLayerID(self):
+        return self.layerID
 
-    def setModule(self, newModule):
-        self.module = newModule
+    def setModuleID(self, newModuleID):
+        self.moduleID = newModuleID
 
-    def getModule(self):
-        return self.module
+    def getModuleID(self):
+        return self.moduleID
 
-    def setCell(self, newCell):
-        self.cell = newCell
+    def setCellID(self, newCellID):
+        self.cell = newCellID
 
-    def getCell(self):
-        return self.cell
+    def getCellID(self):
+        return self.cellID
 
 def emptyEcalID():
     return EcalID(None, None, None)
+
+# Function to build an ecalID from a hitID
+def hitIDToEcalID(hitID):
+    return EcalID(hitIDToLayerID(hitID), hitIDToModuleID(hitID), hitIDToCellID(hitID))
+
+# Function to check whether or not a probeID is the flatID of an ID
+def isFlatEcalID(ID, probeID):
+    if ((probeID.getLayerID() == 0) and (ID.getModuleID() == probeID.getModuleID())) and (ID.getCellID() == probeID.getCellID()):
+        return True
+    return False
+
+# Function to check whether or not a probeID is identical to an ID
+def isSameEcalID(ID, probeID):
+    if ((ID.getLayerID() == probeID.getLayerID()) and (ID.getModuleID() == probeID.getModuleID())) and (ID.getCellID() == probeID.getCellID()):
+        return True
+    return False
