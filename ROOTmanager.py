@@ -179,17 +179,29 @@ class TreeMaker:
         self.branches[branch_name] = np.zeros(1, dtype=rtype)
         if str(rtype) == "<type 'float'>" or str(rtype) == "<class 'float'>":
             self.tree.Branch(branch_name, self.branches[branch_name], branch_name + "/D")
-        elif str(rtype) == "<type 'int'>" or str(rtype) == "<class 'float'>":
+        elif str(rtype) == "<type 'int'>" or str(rtype) == "<class 'int'>":
             self.tree.Branch(branch_name, self.branches[branch_name], branch_name + "/I")
         # ^ probably use cases based on rtype to change the /D if needed?
 
     def resetBranches(self):
 
         # Reset variables to defaults for new event
+        # Return because feats['feat'] looks nicer than self.tfMaker.feats['feat']
 
-        for branch_name in self.branches:
-            self.branches[branch_name][0] = self.branches_info[branch_name]['default']
-            # ^ probs needs cases too & maybe better branches_info system
+        feats = {}
+        for branch_name in self.tfMaker.branches_info:
+            feats[branch_name] = self.tfMaker.branches_info[branch_name]['default']
+
+        return feats
+
+    def fillEvent(self, feats):
+
+        # Fill the tree with new feature values
+
+        for feat in feats:
+            self.branches[feat][0] = feats[feat]
+
+        self.tree.Fill()
 
     def wq(self):
 
