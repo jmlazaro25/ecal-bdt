@@ -183,14 +183,14 @@ class TreeMaker:
             self.tree.Branch(branch_name, self.branches[branch_name], branch_name + "/I")
         # ^ probably use cases based on rtype to change the /D if needed?
 
-    def resetBranches(self):
+    def resetFeats(self):
 
         # Reset variables to defaults for new event
         # Return because feats['feat'] looks nicer than self.tfMaker.feats['feat']
 
         feats = {}
-        for branch_name in self.tfMaker.branches_info:
-            feats[branch_name] = self.tfMaker.branches_info[branch_name]['default']
+        for branch_name in self.branches_info:
+            feats[branch_name] = self.branches_info[branch_name]['default']
 
         return feats
 

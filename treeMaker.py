@@ -66,9 +66,7 @@ def event_process(self):
     #if not self.event_count%4 == 0: return 0
 
     # Initialize BDT input variables w/ defaults
-    feats = {}
-    for branch_name in self.tfMaker.branches_info:
-        feats[branch_name] = self.tfMaker.branches_info[branch_name]['default']
+    feats = self.tfMaker.resetFeats()
     
     ###################################
     # Compute BDT input variables
