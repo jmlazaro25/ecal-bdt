@@ -53,3 +53,13 @@ class EcalID:
 
 def emptyEcalID():
     return EcalID(None, None, None)
+
+def isFlatEcalID(ID, probeID):
+    if ((probeID.getLayerID() == 0) and (ID.getModuleID() == probeID.getModuleID())) and (ID.getCellID() == probeID.getCellID()):
+        return True
+    return False
+
+def isSameEcalID(ID, probeID):
+    if ((ID.getLayerID() == probeID.getLayerID()) and (ID.getModuleID() == probeID.getModuleID())) and (ID.getCellID() == probeID.getCellID()):
+        return True
+    return False

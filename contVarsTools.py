@@ -5,5 +5,5 @@ import ecalIDTools
 # Wrappers for ecal hex readout functions
 ###################################################
 
-def isInShowerInnerRing(centroidID, probeID):
-    return ecalHexReadoutTools.isNN(centroidID, probeID)
+def isInShowerInnerRing(ID, probeID):
+    return ecalHexReadoutTools.isNN(ID, probeID)

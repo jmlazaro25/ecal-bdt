@@ -2,6 +2,8 @@ import math
 import numpy as np
 
 from ecalIDTools import EcalID
+from ecalIDTools import isFlatEcalID
+from ecalIDTools import isSameEcalID
 
 gap = 1.5
 moduler = 85.0
@@ -46,7 +48,7 @@ def honeycomb(xstart, ystart, a, k, s):
             x[5] = x[2]
             y[5] = y[4] - 0.5*a
 
-            hexaVerts.append([(x[k], y[k]) for k in range(0, 6)])
+            hexaVerts.append(np.array([(x[k], y[k]) for k in range(0, 6)]))
 
             xtemp += a*math.sqrt(3)
 
@@ -247,7 +249,7 @@ def buildCellMap():
                     actual_x[i] = vertex_x[i]
                     actual_y[i] = vertex_y[i]
 
-            ecalPolyVerts.append([(actual_x[k], actual_y[k]) for k in range(0, 8) if ((actual_x[k] is not None) and (actual_y[k] is not None))])
+            ecalPolyVerts.append(np.array([(actual_x[k], actual_y[k]) for k in range(0, 8) if ((actual_x[k] is not None) and (actual_y[k] is not None))]))
 
             hexaXMax = sorted(hexa, key = lambda v: v[0])[-1][0]
             hexaXMin = sorted(hexa, key = lambda v: v[0])[0][0]
@@ -321,6 +323,12 @@ def buildNeighborMaps():
             elif (dist > 3*cellr) and (dist <= 4.5*cellr):
                 NNNMap[centerID].append(probeID)
 
+    for centerID in NNMap:
+        NNMap[centerID] = np.array(NNMap[centerID])
+
+    for centerID in NNNMap:
+        NNNMap[centerID] = np.array(NNNMap[centerID])
+
     return NNMap, NNNMap
 
 # Build the neighbor maps
@@ -331,25 +339,25 @@ NNMap, NNNMap = buildNeighborMaps()
 ######################################
 
 def getNN(ID):
-    centerID = [centerID_ for centerID_ in NNMap if ((centerID_.getModuleID() == ID.getModuleID()) and (centerID_.getCellID() == ID.getCellID()))][0]
-    return [EcalID(ID.getLayerID(), probeID.getModuleID(), probeID.getCellID()) for probeID in NNMap[centerID]]
+    centerID = [centerID_ for centerID_ in NNMap if isFlatEcalID(ID, centerID_)][0]
+    return np.array([EcalID(ID.getLayerID(), probeID.getModuleID(), probeID.getCellID()) for probeID in NNMap[centerID]])
 
-def isNN(centroid, probe):
-    for ID in getNN(centroid):
-        if ((ID.getLayerID() == probe.getLayerID()) and (ID.getModuleID() == probe.getModuleID())) and (ID.getCellID() == probe.getCellID()):
+def isNN(ID, probeID):
+    for probeID_ in getNN(ID):
+        if isSameEcalID(probeID, probeID_):
             return True
     return False
 
 def getNNN(ID):
-    centerID = [centerID_ for centerID_ in NNNMap if ((centerID_.getModuleID() == ID.getModuleID()) and (centerID_.getCellID() == ID.getCellID()))][0]
-    return [EcalID(ID.getLayerID(), probeID.getModuleID(), probeID.getCellID()) for probeID in NNNMap[centerID]]
+    centerID = [centerID_ for centerID_ in NNNMap if isFlatEcalID(ID, centerID_)][0]
+    return np.array([EcalID(ID.getLayerID(), probeID.getModuleID(), probeID.getCellID()) for probeID in NNNMap[centerID]])
 
-def isNNN(centroid, probe):
-    for ID in getNNN(centroid):
-        if ((ID.getLayerID() == probe.getLayerID()) and (ID.getModuleID() == probe.getModuleID())) and (ID.getCellID() == probe.getCellID()):
+def isNNN(ID, probeID):
+    for probeID_ in getNNN(ID):
+        if isSameEcalID(probeID, probeID_):
             return True
     return False
 
-def getCellCenterAbsolute(cellModuleID):
-    flatID = [flatID_ for flatID_ in cellModulePositionMap if ((flatID_.getModuleID() == cellModuleID.getModuleID()) and (flatID_.getCellID() == cellModuleID.getCellID()))][0]
+def getCellCenterAbsolute(ID):
+    flatID = [flatID_ for flatID_ in cellModulePositionMap if isFlatEcalID(ID, flatID_)][0]
     return cellModulePositionMap[flatID]
