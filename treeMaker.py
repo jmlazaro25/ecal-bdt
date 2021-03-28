@@ -34,7 +34,7 @@ def main():
     # Construct tree processes
     procs = []
     for gl, group in zip(group_labels, inlist):
-        procs.append(manager.TreeProcess(event_process, group, ID=gl))
+        procs.append( manager.TreeProcess(event_process, group, ID=gl, pfreq=100) )
 
     # Process jobs
     for proc in procs:
@@ -97,7 +97,7 @@ def event_process(self):
 
     # Recoil electron momentum magnitude and angle with z-axis
     feats['recoilPT'] = recoilPMag = physTools.mag(  e_ecalP ) if e_present      else -1.0
-    recoilTheta =   physTools.angle(e_ecalP, units='radians') if recoilPMag > 0 else -1.0
+    recoilTheta =    physTools.angle(e_ecalP, units='radians') if recoilPMag > 0 else -1.0
 
     # Set electron RoC binnings
     e_radii = physTools.radius68_thetalt10_plt500
@@ -151,47 +151,44 @@ def event_process(self):
     if e_traj != None and g_traj != None:
 
         # Create arrays marking start and end of each trajectory
-        e_traj_start = np.array([e_traj[0][0], e_traj[0][1], physTools.ecal_layerZs[0]    ])
-        e_traj_end   = np.array([e_traj[-1][0], e_traj[-1][1], physTools.ecal_layerZs[-1] ])
-        g_traj_start = np.array([g_traj[0][0], g_traj[0][1], physTools.ecal_layerZs[0]    ])
-        g_traj_end   = np.array([g_traj[-1][0], g_traj[-1][1], physTools.ecal_layerZs[-1] ])
+        e_traj_ends = [np.array([e_traj[0][0], e_traj[0][1], physTools.ecal_layerZs[0]    ]),
+                       np.array([e_traj[-1][0], e_traj[-1][1], physTools.ecal_layerZs[-1] ])]
+        g_traj_ends = [np.array([g_traj[0][0], g_traj[0][1], physTools.ecal_layerZs[0]    ]),
+                       np.array([g_traj[-1][0], g_traj[-1][1], physTools.ecal_layerZs[-1] ])]
 
-        evec   = e_traj_end - e_traj_start
-        gvec   = g_traj_end - g_traj_start
+        evec   = e_traj_ends[1] - e_traj_ends[0]
+        gvec   = g_traj_ends[1] - g_traj_ends[0]
         e_norm = physTools.unit(evec)
         g_norm = physTools.unit(gvec)
 
         # Unused epAng and epSep ??? And why Ang instead of dot ???
         feats['epAng'] = epAng = math.acos( physTools.dot(e_norm,g_norm) )*180.0/math.pi
-        feats['epSep'] = epSep = physTools.dist( e_traj_start, g_traj_start )
+        feats['epSep'] = epSep = physTools.dist( e_traj_ends[0], g_traj_ends[0] )
 
     else:
 
         # Electron trajectory is missing so all hits in Ecal are okay to use
         # Pick trajectories so they won'trestrict tracking, far outside the Ecal
 
-        e_traj_start   = np.array([999 ,999 ,0   ])
-        e_traj_end     = np.array([999 ,999 ,999 ])
-        g_traj_start   = np.array([1000,1000,0   ])
-        g_traj_end     = np.array([1000,1000,1000])
+        e_traj_ends   = [np.array([999 ,999 ,0   ]), np.array([999 ,999 ,999 ]) ]
+        g_traj_ends   = [np.array([1000,1000,0   ]), np.array([1000,1000,1000]) ]
         feats['epAng'] = epAng = 3.0 + 1.0 # Don't cut on these in this case
         feats['epSep'] = epSep = 10.0 + 1.0
 
     # Near photon step: Find the first layer of the ECal where a hit near the projected
     # photon trajectory is found
     # Currently unusued pending further study; performance has dropped between v9 and v12
-
     if g_traj != None: # If no photon trajectory, leave this at the default
-        for hit in trackingHitList:
-            if hit.layer < feats['firstNearPhLayer'] and\
-                    physTools.dist( hit.pos[:2],g_traj[hit.layer]) < physTools.cellWidth:
-                feats['firstNearPhLayer'] = hit.layer
+        feats['firstNearPhLayer'] = mipTracking.firstNearPhLayer( trackingHitList, g_traj )
 
     # Order hits by zpos for efficiency
     trackingHitList.sort(key=lambda hd: hd.layer, reverse=True)
 
     # Find MIP tracks
-    feats['nStraightTracks'] = mipTracking.nStraightTracks(trackingHitList)
+    feats['nStraightTracks'], trackingHitList = mipTracking.nStraightTracks(trackingHitList,
+                                                        e_traj_ends, e_traj_ends)
+    #feats['nLinregTracks'] = mipTracking.nLinregTracks( trackingHitList,
+    #                                                    e_traj_ends, e_traj_ends)
 
     # Fill the tree with values for this event
     self.tfMaker.fillEvent(feats)

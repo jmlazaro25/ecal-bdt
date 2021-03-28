@@ -106,6 +106,16 @@ def dist(p1, p2):
     p1, p2 = np.array(p1), np.array(p2)
     return mag(p1 - p2)
 
+# Minimum distance between lines, each line defined by two points
+def distTwoLines(h1,h2,p1,p2):
+    e1  = unit( h1 - h2 )
+    e2  = unit( p1 - p2 )
+    crs = np.cross(e1,e2) # Vec perp to both lines
+    if mag(crs) != 0:
+        return abs( np.dot( crs,h1-p1) )
+    else: # Lines are parallel; need different method
+        return mag( np.cross(e1,h1-p1) )
+
 # Angle with Z
 def angle(vec, units):
     if units=='degrees': return math.acos(vec[2]/mag(vec))*180.0/math.pi

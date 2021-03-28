@@ -254,7 +254,7 @@ def parse(nolist = False):
     parser.add_argument('--out', nargs='+', action='store', dest='out', default=[],
             help='output files or director(y/ies) of output files')
             # if inputting directories, it's best to make a system
-            # for naming files in main and just provide 
+            # for naming files in main() of main script 
     parser.add_argument('--notlist', action='store_true', dest='nolist',
             help="return things without lists (to make things neater for 1 sample runs")
     parser.add_argument('-m','--max', type=int, action='store', dest='maxEvent',
