@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import pickle as pkl
 import xgboost as xgb
-import ROOTmanager as manager
+import mods.ROOTmanager as manager
 
 
 def main():
@@ -15,7 +15,7 @@ def main():
     group_labels = pdict['groupls']
 
     cwd = os.getcwd()
-    pkl_file = cwd+'/bdt_0/bdt_0_weights.pkl'
+    pkl_file = cwd+'/bdt_test_0/bdt_test_0_weights.pkl'
 
     # TreeModel to build here
     # Note: except for the discValue, defaults don't really matter here
@@ -23,7 +23,7 @@ def main():
         'nReadoutHits':         {'rtype': int, 'default': 0.},
         'nStraightTracks':      {'rtype': int, 'default': 0.},
 
-        'discValue_HcalVeto':   {'rtype': float, 'default': 0.5}
+        'discValue_EcalVeto':   {'rtype': float, 'default': 0.5}
         }
 
     # Make a process
@@ -31,7 +31,7 @@ def main():
     proc.model = pkl.load(open(pkl_file,'rb'))
     
     # Make an output file and new tree (copied from input + discValue)
-    proc.tfMaker = manager.TreeMaker(outlist[0], "HcalVeto", branches_info)
+    proc.tfMaker = manager.TreeMaker(outlist[0], "EcalVeto", branches_info)
    
     # RUN
     proc.extraf = proc.tfMaker.wq # Gets executed at the end of run()
@@ -43,6 +43,7 @@ def event_process(self):
 
     # Feature list from input tree
     # Exp: feats = [ feat_value for feat_value in self.tree ]
+    # Exp: feats = [ feat_value for feat_value in self.tree ]
     feats = [
           self.tree.nReadoutHits,
           self.tree.nStraightTracks
@@ -50,12 +51,12 @@ def event_process(self):
 
     # Copy input tree feats to new tree
     for feat_name, feat_value in zip(self.tfMaker.branches_info, feats):
-        self.tfMaker.branches[feat][0] = feat_value
+        self.tfMaker.branches[feat_name][0] = feat_value
 
     # Add prediction to new tree
     evtarray = np.array([feats])
     pred = float(self.model.predict(xgb.DMatrix(evtarray))[0])
-    self.tfMaker.branches['discValue_HcalVeto'][0] = pred
+    self.tfMaker.branches['discValue_EcalVeto'][0] = pred
 
     # Fill new tree with current event values
     self.tfMaker.tree.Fill()

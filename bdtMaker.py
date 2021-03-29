@@ -17,8 +17,8 @@ plt.use('Agg')
 sys.path.insert(0, '../')
 
 # Because parsing flags can be annoying sometimes
-bkg_file = 'bdt_0/bkg_train.root'
-sig_file = 'bdt_0/sig_train.root'
+bkg_file = 'flats_0/bkg_train.root'
+sig_file = 'flats_0/sig_train.root'
 
 class sampleContainer:
     def __init__(self,filename,maxEvts,isSig):
@@ -39,8 +39,8 @@ class sampleContainer:
             ###################################
             # Features
             ###################################
-            evt.append(self.nReadoutHits)       # 0
-            evt.append(self.nStraightTracks)    # 1
+            evt.append(event.nReadoutHits)       # 0
+            evt.append(event.nStraightTracks)    # 1
 
             self.events.append(evt)
 
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option('--seed', dest='seed',type="int",  default=2, help='Numpy random seed.')
     parser.add_option('--max_evt', dest='max_evt',type="int",  default=1500000, help='Max Events to load')
-    parser.add_option('--out_name', dest='out_name',  default='test', help='Output Pickle Name')
+    parser.add_option('--out_name', dest='out_name',  default='bdt_test', help='Output Pickle Name')
     parser.add_option('--eta', dest='eta',type="float",  default=0.023, help='Learning Rate')
     parser.add_option('--tree_number', dest='tree_number',type="int",  default=1000, help='Tree Number')
     parser.add_option('--depth', dest='depth',type="int",  default=10, help='Max Tree Depth')
@@ -103,13 +103,13 @@ if __name__ == "__main__":
     print( 'You set eta = {}'.format(options.eta)                 )
 
     # Make Signal Container
-    print( 'Loading sig_file = .format{}'.format(options.sig_file) )
+    print( 'Loading sig_file = {}'.format(options.sig_file) )
     sigContainer = sampleContainer(options.sig_file,options.max_evt,True)
     sigContainer.root2PyEvents()
     sigContainer.constructTrainAndTest()
 
     # Make Background Container
-    print( 'Loading bkg_file = %s'.format(options.bkg_file) )
+    print( 'Loading bkg_file = {}'.format(options.bkg_file) )
     bkgContainer = sampleContainer(options.bkg_file,options.max_evt,False)
     bkgContainer.root2PyEvents()
     bkgContainer.constructTrainAndTest()
@@ -135,15 +135,15 @@ if __name__ == "__main__":
     gbm = xgb.train(params, eventContainer.dtrain, options.tree_number)
 
     # Store BDT
-    output = open(options.out_name+'_'+str(adds)+'/' + \ # Own directory
+    output = open(options.out_name+'_'+str(bdt_num)+'/' + \
             options.out_name+'_'+str(bdt_num)+'_weights.pkl', 'wb')
     pkl.dump(gbm, output)
 
     # Plot feature importances
     xgb.plot_importance(gbm)
-    plt.pyplot.savefig(options.out_name+'_'+str(adds)+"/" + \ # BDT Directory
+    plt.pyplot.savefig(options.out_name+'_'+str(bdt_num)+"/" + \
             options.out_name+'_'+str(bdt_num)+'_fimportance.png', # png file name
             dpi=500, bbox_inches='tight', pad_inches=0.5) # png parameters
     
     # Closing statment
-    print("Files saved in: ", options.out_name+'_'+str(adds))
+    print("Files saved in: ", options.out_name+'_'+str(bdt_num))
