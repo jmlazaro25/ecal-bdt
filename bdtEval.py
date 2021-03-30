@@ -14,14 +14,26 @@ def main():
     outlist = pdict['outlist']
     group_labels = pdict['groupls']
 
-    cwd = os.getcwd()
-    pkl_file = cwd+'/bdt_test_0/bdt_test_0_weights.pkl'
+    pkl_file = os.getcwd()+'/bdt_test_1/bdt_test_1_weights.pkl'
 
     # TreeModel to build here
     # Note: except for the discValue, defaults don't really matter here
     branches_info = {
-        'nReadoutHits':         {'rtype': int, 'default': 0.},
-        'nStraightTracks':      {'rtype': int, 'default': 0.},
+        'nReadoutHits':         {'rtype': int,   'default': 0 }, # 0
+        'summedDet':            {'rtype': float, 'default': 0.}, # 1
+        'summedTightIso':       {'rtype': float, 'default': 0.}, # 2
+        'maxCellDep':           {'rtype': float, 'default': 0.}, # 3
+        'showerRMS':            {'rtype': float, 'default': 0.}, # 4
+
+        'xStd':                 {'rtype': float, 'default': 0.}, # 5
+        'yStd':                 {'rtype': float, 'default': 0.}, # 6
+        'avgLayerHit':          {'rtype': float, 'default': 0.}, # 7
+        'stdLayerHit':          {'rtype': float, 'default': 0.}, # 8
+        'deepestLayerHit':      {'rtype': int,   'default': 0 }, # 9
+
+        'ecalBackEnergy':       {'rtype': float, 'default': 0.}, # 10
+        'recoilPT':             {'rtype': float, 'default': 0.}, # 11
+        'nStraightTracks':      {'rtype': int,   'default': 0 }, # 12
 
         'discValue_EcalVeto':   {'rtype': float, 'default': 0.5}
         }
@@ -31,7 +43,7 @@ def main():
     proc.model = pkl.load(open(pkl_file,'rb'))
     
     # Make an output file and new tree (copied from input + discValue)
-    proc.tfMaker = manager.TreeMaker(outlist[0], "EcalVeto", branches_info)
+    proc.tfMaker = manager.TreeMaker(outlist[0], 'EcalVeto', branches_info)
    
     # RUN
     proc.extraf = proc.tfMaker.wq # Gets executed at the end of run()
@@ -42,12 +54,24 @@ def main():
 def event_process(self):
 
     # Feature list from input tree
-    # Exp: feats = [ feat_value for feat_value in self.tree ]
-    # Exp: feats = [ feat_value for feat_value in self.tree ]
+    # Exp: feats = [ feat_value for feat_value in self.tree~ ]
     feats = [
-          self.tree.nReadoutHits,
-          self.tree.nStraightTracks
-          ]
+            self.tree.nReadoutHits,
+            self.tree.summedDet,
+            self.tree.summedTightIso,
+            self.tree.maxCellDep,
+            self.tree.showerRMS,
+
+            self.tree.xStd,
+            self.tree.yStd,
+            self.tree.avgLayerHit,
+            self.tree.stdLayerHit,
+            self.tree.deepestLayerHit,
+
+            self.tree.ecalBackEnergy,
+            self.tree.recoilPT,
+            self.tree.nStraightTracks
+            ]
 
     # Copy input tree feats to new tree
     for feat_name, feat_value in zip(self.tfMaker.branches_info, feats):

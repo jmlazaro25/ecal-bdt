@@ -2,7 +2,7 @@
 
 Purpose: Faster development and eliminates need for ldmx-analysis and other dependencies\
 Requirments: Working install of `ldmx-sw-v2.3.0` or greater and `v12` samples.\
-       +     Only tested with container including numpy, xgboost, sklearn, and matplotlib packages.
+       +     Only tested with container including numpy, xgboost, and matplotlib packages.
              
 Currently set to to run seg-mip BDT.
 

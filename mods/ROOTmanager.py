@@ -4,7 +4,6 @@ import ROOT as r
 import numpy as np # ?
 
 
-#TODO: Add a move to scratch dir function
 #TODO: Make options for no output or based on input
 #TODO: Make nolists independant for in and out
 
@@ -111,7 +110,9 @@ class TreeProcess:
 
         if ldmx_class == 'EventHeader':
             branch = r.ldmx.EventHeader()
-        elif ldmx_class == 'SimParticle':
+        elif ldmx_class == 'EcalVetoResult':
+            branch = r.ldmx.EcalVetoResult()
+        elif ldmx_class == 'SimParticle': 
             branch = r.map(int, 'ldmx::'+ldmx_class)() 
         else:
             branch = r.std.vector('ldmx::'+ldmx_class)()

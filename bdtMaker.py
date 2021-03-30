@@ -16,9 +16,9 @@ mpl_logger.setLevel(logging.WARNING)
 plt.use('Agg')
 sys.path.insert(0, '../')
 
-# Because parsing flags can be annoying sometimes
-bkg_file = 'flats_0/bkg_train.root'
-sig_file = 'flats_0/sig_train.root'
+# Because remembering parsing flags can be annoying sometimes
+bkg_file = 'flats_1/bkg/bkg_train.root'
+sig_file = 'flats_1/sig/sig_train.root'
 
 class sampleContainer:
     def __init__(self,filename,maxEvts,isSig):
@@ -39,8 +39,21 @@ class sampleContainer:
             ###################################
             # Features
             ###################################
-            evt.append(event.nReadoutHits)       # 0
-            evt.append(event.nStraightTracks)    # 1
+            evt.append(event.nReadoutHits)          # 0
+            evt.append(event.summedDet)             # 1
+            evt.append(event.summedTightIso)        # 2
+            evt.append(event.maxCellDep)            # 3
+            evt.append(event.showerRMS)             # 4
+
+            evt.append(event.xStd)                  # 5
+            evt.append(event.yStd)                  # 6
+            evt.append(event.avgLayerHit)           # 7
+            evt.append(event.stdLayerHit)           # 8
+            evt.append(event.deepestLayerHit)       # 9
+
+            evt.append(event.ecalBackEnergy)        # 10
+            evt.append(event.recoilPT)              # 11
+            evt.append(event.nStraightTracks)       # 12
 
             self.events.append(evt)
 
@@ -48,7 +61,6 @@ class sampleContainer:
         self.events = np.array(self.events)
         np.take(self.events, new_idx, axis=0, out=self.events)
         print("Final Event Shape" + str(np.shape(self.events)))
-        #self.tfile.Close()
 
     def constructTrainAndTest(self):
         self.train_x = self.events
@@ -125,7 +137,7 @@ if __name__ == "__main__":
                   'subsample':.9,
                   'colsample_bytree': .85,
                   #'eval_metric': 'auc',
-                  #'eval_metric': 'error',
+                  'eval_metric': 'error',
                   'seed': 1,
                   'nthread': 1,
                   'verbosity': 1,

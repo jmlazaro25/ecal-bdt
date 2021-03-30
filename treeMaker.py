@@ -19,8 +19,18 @@ def main():
     # TreeModel to build here
     branches_info = {
             # Base Vars
-            'nReadoutHits':      {'rtype': int,   'default': 0 },
-            'recoilPT':          {'rtype': float, 'default': 0.},
+            'nReadoutHits':         {'rtype': int,   'default': 0 },
+            'summedDet':            {'rtype': float, 'default': 0.},
+            'summedTightIso':       {'rtype': float, 'default': 0.},
+            'maxCellDep':           {'rtype': float, 'default': 0.},
+            'showerRMS':            {'rtype': float, 'default': 0.},
+            'xStd':                 {'rtype': float, 'default': 0.},
+            'yStd':                 {'rtype': float, 'default': 0.},
+            'avgLayerHit':          {'rtype': float, 'default': 0.},
+            'stdLayerHit':          {'rtype': float, 'default': 0.},
+            'deepestLayerHit':      {'rtype': int,   'default': 0 },
+            'ecalBackEnergy':       {'rtype': float, 'default': 0.},
+            'recoilPT':             {'rtype': float, 'default': 0.},
             # Segmentation Vars
             # ----------------
             # MIP tracking variables
@@ -40,9 +50,10 @@ def main():
     for proc in procs:
 
         # Branches needed
+        proc.ecalVeto     = proc.addBranch('EcalVetoResult', 'EcalVeto_v12')
         proc.targetSPHits = proc.addBranch('SimTrackerHit', 'TargetScoringPlaneHits_v12')
         proc.ecalSPHits   = proc.addBranch('SimTrackerHit', 'EcalScoringPlaneHits_v12')
-        proc.ecalRecHits  = proc.addBranch('EcalHit',       'EcalRecHits_v12')
+        proc.ecalRecHits  = proc.addBranch('EcalHit', 'EcalRecHits_v12')
 
         # Tree/Files(s) to make
         print('Running %s'%(proc.ID))
@@ -62,14 +73,24 @@ def main():
 # Process an event
 def event_process(self):
 
-    # For smaller unbiased samples (maybe build into ROOTmanager)
-    #if not self.event_count%4 == 0: return 0
-
     # Initialize BDT input variables w/ defaults
     feats = self.tfMaker.resetFeats()
+
+    # Assign pre-computed variables
+    feats['nReadoutHits']       = self.ecalVeto.getNReadoutHits()
+    feats['summedDet']          = self.ecalVeto.getSummedDet()
+    feats['summedTightIso']     = self.ecalVeto.getSummedTightIso()
+    feats['maxCellDep']         = self.ecalVeto.getMaxCellDep()
+    feats['showerRMS']          = self.ecalVeto.getShowerRMS()
+    feats['xStd']               = self.ecalVeto.getXStd()
+    feats['yStd']               = self.ecalVeto.getYStd()
+    feats['avgLayerHit']        = self.ecalVeto.getAvgLayerHit()
+    feats['stdLayerHit']        = self.ecalVeto.getStdLayerHit()
+    feats['deepestLayerHit']    = self.ecalVeto.getDeepestLayerHit() 
+    feats['ecalBackEnergy']     = self.ecalVeto.getEcalBackEnergy()
     
     ###################################
-    # Compute BDT input variables
+    # Compute extra BDT input variables
     ###################################
 
     # Get e position and momentum, and make note of presence
