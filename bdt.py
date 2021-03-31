@@ -37,20 +37,16 @@ def translate(event) :
 
 class SampleContainer:
     def __init__(self,filename,maxEvts,isSig):
-        f = ROOT.TFile.Open(filename)
-        t = f.Get('LDMX_Events')
+        self.f = ROOT.TFile.Open(filename)
+        self.t = self.f.Get('LDMX_Events')
 
         events = []
         events_left = maxEvts
-        for event in t :
+        for event in self.t :
             events.append(translate(event))
             events_left -= 1
             if events_left < 0 :
                 break
-
-        # done with loop through event tree
-        # DONT USE f or t after we close the file
-        f.Close()
 
         new_idx=numpy.random.permutation(numpy.arange(numpy.shape(events)[0]))
         events = numpy.array(events)
@@ -101,3 +97,32 @@ class Trainer :
         matplotlib.pyplot.savefig(f'{name}_fimportance.png',
                 dpi=500, bbox_inches='tight', pad_inches=0.5) # png parameters
         
+
+class Evaluator:
+    def __init__(self, pkl_file) :
+        self.model = pickle.load(open(pkl_file,'rb'))
+
+    def __eval__(self, event) :
+        return float(self.model.predict(xgboost.DMatrix(numpy.array([translate(event)])))[0])
+
+    def eval(self, sample, max_events=None, out_name='eval_bdt.root') :
+        f = ROOT.TFile.Open(out_name,'RECREATE')
+        t = sample.t.CloneTree(0)
+        for event in sample.t :
+            disc = self.__eval__(event)
+            try :
+                t.EcalVeto_eat.setDiscValue(disc)
+            except :
+                t.EcalVeto_signal.setDiscValue(disc)
+
+            t.Fill()
+
+            if max_events is not None :
+                max_events -= 1
+                if max_events < 0 :
+                    break
+
+        #done with loop over read-in events
+
+        t.Write()
+        f.Close()
