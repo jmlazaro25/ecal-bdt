@@ -5,8 +5,8 @@ import argparse
 # Parse
 parser = argparse.ArgumentParser(f'ldmx python3 {sys.argv[0]}', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-parser.add_argument('-b',metavar='BKGD_FILE',dest='bkg_file',required=True,help='Path to background file')
-parser.add_argument('-s',metavar='SIGN_FILE',dest='sig_file',required=True,help='Path to signal file')
+parser.add_argument('-b',metavar='BKGD_FILE',dest='bkg_files',nargs='+',required=True,help='Path to background file')
+parser.add_argument('-s',metavar='SIGN_FILE',dest='sig_files',nargs='+',required=True,help='Path to signal file')
 parser.add_argument('-o',metavar='OUT_NAME',dest='out_name',required=True,help='Output name of trained BDT')
 
 parser.add_argument('--seed', dest='seed',type=int,default=2,help='Numpy random seed.')
@@ -24,24 +24,27 @@ import bdt
 numpy.random.seed(arg.seed)
 
 # Print run info
-print( f'Random seed is = {arg.seed}' )
-print( f'You set max_evt = {arg.max_evt}' )
-print( f'You set tree number = {arg.tree_number}' )
-print( f'You set max tree depth = {arg.depth}' )
-print( f'You set eta = {arg.eta}' )
+print(f'Random seed is = {arg.seed}' )
+print(f'You set max_evt = {arg.max_evt}' )
+print(f'You set tree number = {arg.tree_number}' )
+print(f'You set max tree depth = {arg.depth}' )
+print(f'You set eta = {arg.eta}' )
 
 # Make Signal Container
-print( f'Loading sig_file = {arg.sig_file}' )
-sigContainer = bdt.SampleContainer(arg.sig_file,arg.max_evt,True)
+print('Loading signal files...')
+sig_sample = bdt.SampleContainer(arg.sig_files)
 
 # Make Background Container
-print( f'Loading bkg_file = {arg.bkg_file}' )
-bkgContainer = bdt.SampleContainer(arg.bkg_file,arg.max_evt,False)
+print('Loading bkgd files...')
+bkg_sample = bdt.SampleContainer(arg.bkg_files)
 
-t = bdt.Trainer(sigContainer, bkgContainer, arg.eta, arg.depth, arg.tree_number)
+print('Constructing trainer and translating ROOT objects...')
+t = bdt.Trainer(sig_sample,bkg_sample, arg.max_evt,arg.eta,arg.depth,arg.tree_number)
 
+print('Training...')
 t.train()
 
+print('Saving output...')
 t.save(arg.out_name)
 
 print('Done')

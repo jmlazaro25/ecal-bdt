@@ -11,55 +11,75 @@ import matplotlib
 
 ROOT.gSystem.Load('libFramework.so')
 
-def translate(event) :
-    """Translate input ROOT event object into the feature vector."""
-
-    try :
-        veto = event.EcalVeto_eat
-    except :
-        veto = event.EcalVeto_signal
-
-    return [
-        veto.getNReadoutHits(),
-        veto.getSummedDet(),
-        veto.getSummedTightIso(),
-        veto.getMaxCellDep(),
-        veto.getShowerRMS(),
-        veto.getXStd(),
-        veto.getYStd(),
-        veto.getAvgLayerHit(),
-        veto.getStdLayerHit(),
-        veto.getDeepestLayerHit(),
-        veto.getEcalBackEnergy(),
-        veto.getNStraightTracks(),
-        veto.getNLinRegTracks()
-        ]
-
 class SampleContainer:
-    def __init__(self,filename,maxEvts,isSig):
-        self.f = ROOT.TFile.Open(filename)
-        self.t = self.f.Get('LDMX_Events')
+    def __init__(self, file_paths, tree_to_clone=None):
+        if tree_to_clone is None :
+            self.t = ROOT.TChain('LDMX_Events')
+            for f in file_paths :
+                self.t.Add(f)
+        else :
+            if len(file_paths) > 1 :
+                raise Exception('Can\'t clone tree into multiple files.')
 
+            self.f = ROOT.TFile.Open(file_paths[0],'RECREATE')
+            self.t = tree_to_clone.CloneTree(0)
+        # reading or writing
+    
+        self.veto = None
+
+    def get_veto(self) :
+        if self.veto is None :
+            try :
+                self.veto = self.t.EcalVeto_eat
+            except :
+                self.veto = self.t.EcalVeto_signal
+        
+        return self.veto
+
+    def single_translation(self) :
+        self.veto = self.get_veto()
+
+        return [
+            self.veto.getNReadoutHits(),
+            self.veto.getSummedDet(),
+            self.veto.getSummedTightIso(),
+            self.veto.getMaxCellDep(),
+            self.veto.getShowerRMS(),
+            self.veto.getXStd(),
+            self.veto.getYStd(),
+            self.veto.getAvgLayerHit(),
+            self.veto.getStdLayerHit(),
+            self.veto.getDeepestLayerHit(),
+            self.veto.getEcalBackEnergy(),
+            self.veto.getNStraightTracks(),
+            self.veto.getNLinRegTracks()
+            ]
+
+    def translation(self, max_events = None, shuffle = True) :
+        """Translating the sample wrapped by this container into list of feature vectors"""
         events = []
-        events_left = maxEvts
         for event in self.t :
-            events.append(translate(event))
-            events_left -= 1
-            if events_left < 0 :
-                break
+            if max_events is not None :
+                max_events -= 1
+                if max_events < 0 :
+                    break
+            events.append(self.single_translation())
 
-        new_idx=numpy.random.permutation(numpy.arange(numpy.shape(events)[0]))
-        events = numpy.array(events)
-        numpy.take(events, new_idx, axis=0, out=events)
+        if shuffle :
+            new_idx=numpy.random.permutation(numpy.arange(numpy.shape(events)[0]))
+            events = numpy.array(events)
+            numpy.take(events, new_idx, axis=0, out=events)
 
-        self.train_x = events
-        self.train_y = numpy.zeros(len(self.train_x)) + (isSig == True)
+        return events
 
 class Trainer :
-    def __init__(self, sig_sample, bkg_sample, eta, depth, tree_number) :
+    def __init__(self, sig_sample, bkg_sample, max_events, eta, depth, tree_number) :
 
-        train_x = numpy.vstack((sig_sample.train_x,bkg_sample.train_x))
-        train_y = numpy.append(sig_sample.train_y,bkg_sample.train_y)
+        sign_feats = sig_sample.translation(max_events = max_events, shuffle=True)
+        bkgd_feats = bkg_sample.translation(max_events = max_events, shuffle=True)
+
+        train_x = numpy.vstack((sign_feats,bkgd_feats))
+        train_y = numpy.append(numpy.zeros(len(sign_feats))+1,numpy.zeros(len(bkgd_feats)))
         
         train_x[numpy.isnan(train_x)] = 0.000
         train_y[numpy.isnan(train_y)] = 0.000
@@ -102,20 +122,14 @@ class Evaluator:
     def __init__(self, pkl_file) :
         self.model = pickle.load(open(pkl_file,'rb'))
 
-    def __eval__(self, event) :
-        return float(self.model.predict(xgboost.DMatrix(numpy.array([translate(event)])))[0])
+    def __eval__(self, translated_event) :
+        return float(self.model.predict(xgboost.DMatrix(numpy.array([translated_event])))[0])
 
-    def eval(self, sample, max_events=None, out_name='eval_bdt.root') :
-        f = ROOT.TFile.Open(out_name,'RECREATE')
-        t = sample.t.CloneTree(0)
-        for event in sample.t :
-            disc = self.__eval__(event)
-            try :
-                t.EcalVeto_eat.setDiscValue(disc)
-            except :
-                t.EcalVeto_signal.setDiscValue(disc)
-
-            t.Fill()
+    def eval(self, input_sample, max_events=None, out_name='eval_bdt.root') :
+        output_sample = SampleContainer([out_name], input_sample.t)
+        for event in input_sample.t :
+            output_sample.get_veto().setDiscValue(self.__eval__(input_sample.single_translation()))
+            output_sample.t.Fill()
 
             if max_events is not None :
                 max_events -= 1
@@ -124,5 +138,5 @@ class Evaluator:
 
         #done with loop over read-in events
 
-        t.Write()
-        f.Close()
+        output_sample.t.Write()
+        output_sample.f.Close()
