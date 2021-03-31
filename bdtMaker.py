@@ -1,137 +1,53 @@
 import os
-import sys
 import logging
-import argparse
-import ROOT as r
-import numpy as np
-import pickle as pkl
-import xgboost as xgb
-import matplotlib as plt
-from array    import array
-from optparse import OptionParser
 
+import numpy
+import pickle
+import xgboost
+import matplotlib
 
-mpl_logger = logging.getLogger('matplotlib')
-mpl_logger.setLevel(logging.WARNING)
-plt.use('Agg')
-sys.path.insert(0, '../')
+import ROOT
+import core
 
-# Because remembering parsing flags can be annoying sometimes
-bkg_file = 'flats_1/bkg/bkg_train.root'
-sig_file = 'flats_1/sig/sig_train.root'
+core.load_event_dict()
 
-class sampleContainer:
+class SampleContainer:
     def __init__(self,filename,maxEvts,isSig):
+        f = ROOT.TFile.Open(filename)
+        t = f.Get('LDMX_Events')
 
-        print("Initializing Container!")
-        self.tree = r.TChain("EcalVeto")
-        self.tree.Add(filename)
-        self.maxEvts = maxEvts
-        self.isSig   = isSig
+        events = []
+        events_left = maxEvts
+        for event in t :
+            events.append(core.translation(event))
+            events_left -= 1
+            if events_left < 0 :
+                break
 
-    def root2PyEvents(self):
-        self.events =  []
-        for event in self.tree:
-            if len(self.events) >= self.maxEvts:
-                continue
-            evt = []
+        # done with loop through event tree
+        # DONT USE f or t after we close the file
+        f.Close()
 
-            ###################################
-            # Features
-            ###################################
-            evt.append(event.nReadoutHits)          # 0
-            evt.append(event.summedDet)             # 1
-            evt.append(event.summedTightIso)        # 2
-            evt.append(event.maxCellDep)            # 3
-            evt.append(event.showerRMS)             # 4
+        new_idx=numpy.random.permutation(numpy.arange(numpy.shape(events)[0]))
+        events = numpy.array(events)
+        numpy.take(events, new_idx, axis=0, out=events)
 
-            evt.append(event.xStd)                  # 5
-            evt.append(event.yStd)                  # 6
-            evt.append(event.avgLayerHit)           # 7
-            evt.append(event.stdLayerHit)           # 8
-            evt.append(event.deepestLayerHit)       # 9
+        self.train_x = events
+        self.train_y = numpy.zeros(len(self.train_x)) + (isSig == True)
 
-            evt.append(event.ecalBackEnergy)        # 10
-            evt.append(event.recoilPT)              # 11
-            evt.append(event.nStraightTracks)       # 12
+class Trainer :
+    def __init__(self, sig_sample, bkg_sample, eta, depth, tree_number) :
 
-            self.events.append(evt)
-
-        new_idx=np.random.permutation(np.arange(np.shape(self.events)[0]))
-        self.events = np.array(self.events)
-        np.take(self.events, new_idx, axis=0, out=self.events)
-        print("Final Event Shape" + str(np.shape(self.events)))
-
-    def constructTrainAndTest(self):
-        self.train_x = self.events
-        self.train_y = np.zeros(len(self.train_x)) + (self.isSig == True)
-
-class mergedContainer:
-    def __init__(self, sigContainer,bkgContainer):
-        self.train_x = np.vstack((sigContainer.train_x,bkgContainer.train_x))
-        self.train_y = np.append(sigContainer.train_y,bkgContainer.train_y)
+        train_x = numpy.vstack((sig_sample.train_x,bkg_sample.train_x))
+        train_y = numpy.append(sig_sample.train_y,bkg_sample.train_y)
         
-        self.train_x[np.isnan(self.train_x)] = 0.000
-        self.train_y[np.isnan(self.train_y)] = 0.000
+        train_x[numpy.isnan(train_x)] = 0.000
+        train_y[numpy.isnan(train_y)] = 0.000
         
-        self.dtrain = xgb.DMatrix(self.train_x,self.train_y)
-    
-
-if __name__ == "__main__":
-    
-    # Parse
-    parser = OptionParser()
-    parser.add_option('--seed', dest='seed',type="int",  default=2, help='Numpy random seed.')
-    parser.add_option('--max_evt', dest='max_evt',type="int",  default=1500000, help='Max Events to load')
-    parser.add_option('--out_name', dest='out_name',  default='bdt_test', help='Output Pickle Name')
-    parser.add_option('--eta', dest='eta',type="float",  default=0.023, help='Learning Rate')
-    parser.add_option('--tree_number', dest='tree_number',type="int",  default=1000, help='Tree Number')
-    parser.add_option('--depth', dest='depth',type="int",  default=10, help='Max Tree Depth')
-    parser.add_option('--bkg_file', dest='bkg_file', default=bkg_file, help='name of background file')
-    parser.add_option('--sig_file', dest='sig_file', default=sig_file, help='name of signal file')
-    (options, args) = parser.parse_args()
-
-    # Seed numpy's randomness
-    np.random.seed(options.seed)
-   
-    # Get BDT num
-    bdt_num=0
-    Check=True
-    while Check:
-        if not os.path.exists(options.out_name+'_'+str(bdt_num)):
-            try:
-                os.makedirs(options.out_name+'_'+str(bdt_num))
-                Check=False
-            except:
-               Check=True
-        else:
-            bdt_num+=1
-
-    # Print run info
-    print( 'Random seed is = {}'.format(options.seed)             )
-    print( 'You set max_evt = {}'.format(options.max_evt)         )
-    print( 'You set tree number = {}'.format(options.tree_number) )
-    print( 'You set max tree depth = {}'.format(options.depth)    )
-    print( 'You set eta = {}'.format(options.eta)                 )
-
-    # Make Signal Container
-    print( 'Loading sig_file = {}'.format(options.sig_file) )
-    sigContainer = sampleContainer(options.sig_file,options.max_evt,True)
-    sigContainer.root2PyEvents()
-    sigContainer.constructTrainAndTest()
-
-    # Make Background Container
-    print( 'Loading bkg_file = {}'.format(options.bkg_file) )
-    bkgContainer = sampleContainer(options.bkg_file,options.max_evt,False)
-    bkgContainer.root2PyEvents()
-    bkgContainer.constructTrainAndTest()
-
-    # Merge
-    eventContainer = mergedContainer(sigContainer,bkgContainer)
-
-    params     = {'objective': 'binary:logistic',
-                  'eta': options.eta,
-                  'max_depth': options.depth,
+        self.unified_training_sample = xgboost.DMatrix(train_x,train_y)
+        self.training_parameters = {'objective': 'binary:logistic',
+                  'eta': eta,
+                  'max_depth': depth,
                   'min_child_weigrt': 20,
                   'silent': 1,
                   'subsample':.9,
@@ -142,20 +58,64 @@ if __name__ == "__main__":
                   'nthread': 1,
                   'verbosity': 1,
                   'early_stopping_rounds' : 10}
+        self.tree_number = tree_number
 
-    # Actual training
-    gbm = xgb.train(params, eventContainer.dtrain, options.tree_number)
+    def train(self) :
+        # Actual training
+        self.gbm = xgboost.train(self.training_parameters, self.unified_training_sample, self.tree_number)
 
-    # Store BDT
-    output = open(options.out_name+'_'+str(bdt_num)+'/' + \
-            options.out_name+'_'+str(bdt_num)+'_weights.pkl', 'wb')
-    pkl.dump(gbm, output)
-
-    # Plot feature importances
-    xgb.plot_importance(gbm)
-    plt.pyplot.savefig(options.out_name+'_'+str(bdt_num)+"/" + \
-            options.out_name+'_'+str(bdt_num)+'_fimportance.png', # png file name
-            dpi=500, bbox_inches='tight', pad_inches=0.5) # png parameters
+    def save(self, name, plot_importance=True) :
+        # Store BDT
+        with open(f'{arg.out_name}_weights.pkl','wb') as output :
+            pickle.dump(self.gbm, output)
     
-    # Closing statment
-    print("Files saved in: ", options.out_name+'_'+str(bdt_num))
+        # Plot feature importances
+        xgboost.plot_importance(self.gbm)
+        matplotlib.pyplot.savefig(f'{arg.out_name}_fimportance.png',
+                dpi=500, bbox_inches='tight', pad_inches=0.5) # png parameters
+        
+
+if __name__ == "__main__":
+    import sys
+    import argparse
+    
+    # Parse
+    parser = argparse.ArgumentParser(f'ldmx python3 {sys.argv[0]}', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    parser.add_argument('-b',metavar='BKGD_FILE',dest='bkg_file',required=True,help='Path to background file')
+    parser.add_argument('-s',metavar='SIGN_FILE',dest='sig_file',required=True,help='Path to signal file')
+    parser.add_argument('-o',metavar='OUT_NAME',dest='out_name',required=True,help='Output name of trained BDT')
+
+    parser.add_argument('--seed', dest='seed',type=int,default=2,help='Numpy random seed.')
+    parser.add_argument('--max_evt', dest='max_evt',type=int,default=1500000, help='Max Events to load')
+    parser.add_argument('--eta', dest='eta',type=float,default=0.023, help='Learning Rate')
+    parser.add_argument('--tree_number', dest='tree_number',type=int,default=1000,help='Tree Number')
+    parser.add_argument('--depth', dest='depth',type=int,default=10,help='Max Tree Depth')
+
+    arg = parser.parse_args()
+
+    # Seed numpy's randomness
+    numpy.random.seed(arg.seed)
+
+    # Print run info
+    print( f'Random seed is = {arg.seed}' )
+    print( f'You set max_evt = {arg.max_evt}' )
+    print( f'You set tree number = {arg.tree_number}' )
+    print( f'You set max tree depth = {arg.depth}' )
+    print( f'You set eta = {arg.eta}' )
+
+    # Make Signal Container
+    print( f'Loading sig_file = {arg.sig_file}' )
+    sigContainer = SampleContainer(arg.sig_file,arg.max_evt,True)
+
+    # Make Background Container
+    print( f'Loading bkg_file = {arg.bkg_file}' )
+    bkgContainer = SampleContainer(arg.bkg_file,arg.max_evt,False)
+
+    t = Trainer(sigContainer, bkgContainer, arg.eta, arg.depth, arg.tree_number)
+
+    t.train()
+
+    t.save(arg.out_name)
+
+    print('Done')
