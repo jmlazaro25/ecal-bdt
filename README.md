@@ -1,24 +1,29 @@
-# Python Implimentation of BDT
+# Python Implementation of BDT
 
-Purpose: Faster development and eliminates need for ldmx-analysis and other dependencies\
-Requirments: Working install of `ldmx-sw-v2.3.0` or greater and `v12` samples.\
-       +     Only tested with container including numpy, xgboost, and matplotlib packages.
-             
-Currently set to to run seg-mip BDT.
+## Purpose
+Faster development. Eliminates need for ldmx-analysis or other dependencies.
 
-Example TreeMaker command to make flat trees from event samples:
-```
-ldmx python3 treeMaker.py --interactive -i <absolute_path_to_inputs> -g <labels_for_input_eg_PN> --out <absolute_outdirs> -m <max_events>
-```
-`--indirs` can be used to run over all files from given directories. More information can be found in `mods/ROOTmanager.py`
+## Requirements
+- Working installation of ldmx-sw v3.0.0-alpha or later
 
-Example bdtMaker command to train BDT:
-```
-ldmx python3 bdtMaker.py --sig_file <path_to_combined_signal_training_file> --bkg_file <path_to_bkg_file>
-```
-There's more options for this too but the command gets long anough as is and I usually just change a few numbers in the script rather than using any parsing. You'll get a warning from XGBoost but it's fine, it's working. It just takes a while. I'd suggest training and evaluate on 100 event background and signal samples first just too see how it works.
+## Running Examples
 
-Example bdtEval command to evaluate trained BDT on test samples:
+**Train**
 ```
-ldmx python3 bdtEval.py --interactive -i <absolute_path_to_testing> -g <labels> --out <absolute_path_output_file_name>
+ldmx python3 train.py -b <bkgd_file> -s <signal_file> -o dummy --max_evt 100
 ```
+This will produce a file `dummy_weights.pkl` that stores the weights of the trained BDT.
+
+**Evaluate**
+```
+ldmx python3 eval.py --bdt <bdt.pkl-to-use> --max_evt 100 <file-to-evaluate>
+```
+This will produce a file `bdt_1_<file-to-evalulate>` that is identical to `<file-to-evaluate>` except
+that the `discValue_` member of `EcalVeto` has been updated with the value calculated by the chosen BDT.
+
+## EaT Notes
+
+- Using Trigger-Skimmed 1e12 EoT Equivalent Enriched Nuclear Background Sample as training set
+  (1e13 EoT Equivalent set will be testing set)
+- Using three 20k event files from each mass point as training set (after trigger skim)
+  (the rest -- 47 20k event files for each mass point -- will be testing set)
