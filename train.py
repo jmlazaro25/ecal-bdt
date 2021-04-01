@@ -39,10 +39,10 @@ print('Loading bkgd files...')
 bkg_sample = bdt.SampleContainer(arg.bkg_files)
 
 print('Constructing trainer and translating ROOT objects...')
-t = bdt.Trainer(sig_sample,bkg_sample, arg.max_evt,arg.eta,arg.depth,arg.tree_number)
+t = bdt.Trainer(sig_sample,bkg_sample,arg.max_evt)
 
 print('Training...')
-t.train()
+t.train(arg.tree_number,arg.eta,arg.depth)
 
 print('Saving output...')
 t.save(arg.out_name)

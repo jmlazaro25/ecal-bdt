@@ -16,7 +16,8 @@ class SampleContainer:
         if tree_to_clone is None :
             self.t = ROOT.TChain('LDMX_Events')
             for f in file_paths :
-                self.t.Add(f)
+                if not self.t.Add(f) :
+                    raise Exception(f'Error adding file {f}.')
         else :
             if len(file_paths) > 1 :
                 raise Exception('Can\'t clone tree into multiple files.')
@@ -25,20 +26,24 @@ class SampleContainer:
             self.t = tree_to_clone.CloneTree(0)
         # reading or writing
     
-        self.veto = None
+        self.veto = ROOT.ldmx.EcalVetoResult()
+        self.__attach__(self.veto,'EcalVeto')
 
-    def get_veto(self) :
-        if self.veto is None :
-            try :
-                self.veto = self.t.EcalVeto_eat
-            except :
-                self.veto = self.t.EcalVeto_signal
+    def __attach__(self,obj,coll_name,pass_name='') :
         
-        return self.veto
+        full_name = f'{coll_name}_{pass_name}'
+
+        options = [b.GetName() for b in self.t.GetListOfBranches() if full_name in b.GetName()]
+
+        if len(options) == 0 :
+            raise Exception(f'No branch matching {full_name}.')
+        elif len(options) > 1 :
+            raise Exception(f'More than one branch matching {full_name}.')
+
+        # now we know we have a unique branch 'options[0]'
+        self.t.SetBranchAddress(options[0], ROOT.AddressOf(obj))
 
     def single_translation(self) :
-        self.veto = self.get_veto()
-
         return [
             self.veto.getNReadoutHits(),
             self.veto.getSummedDet(),
@@ -57,12 +62,14 @@ class SampleContainer:
 
     def translation(self, max_events = None, shuffle = True) :
         """Translating the sample wrapped by this container into list of feature vectors"""
+
+        num_events = 0
         events = []
         for event in self.t :
-            if max_events is not None :
-                max_events -= 1
-                if max_events < 0 :
-                    break
+            num_events += 1
+            if max_events is not None and num_events > max_events :
+                break
+
             events.append(self.single_translation())
 
         if shuffle :
@@ -73,7 +80,7 @@ class SampleContainer:
         return events
 
 class Trainer :
-    def __init__(self, sig_sample, bkg_sample, max_events, eta, depth, tree_number) :
+    def __init__(self, sig_sample, bkg_sample, max_events) :
 
         sign_feats = sig_sample.translation(max_events = max_events, shuffle=True)
         bkgd_feats = bkg_sample.translation(max_events = max_events, shuffle=True)
@@ -85,6 +92,9 @@ class Trainer :
         train_y[numpy.isnan(train_y)] = 0.000
         
         self.unified_training_sample = xgboost.DMatrix(train_x,train_y)
+
+    def train(self, tree_number = 1, eta = 0.023, depth = 10) :
+        # Actual training
         self.training_parameters = {'objective': 'binary:logistic',
                   'eta': eta,
                   'max_depth': depth,
@@ -98,11 +108,7 @@ class Trainer :
                   'nthread': 1,
                   'verbosity': 1,
                   'early_stopping_rounds' : 10}
-        self.tree_number = tree_number
-
-    def train(self) :
-        # Actual training
-        self.gbm = xgboost.train(self.training_parameters, self.unified_training_sample, self.tree_number)
+        self.gbm = xgboost.train(training_parameters, self.unified_training_sample, tree_number)
 
     def save(self, name, plot_importance=True) :
         # Store BDT
@@ -125,10 +131,10 @@ class Evaluator:
     def __eval__(self, translated_event) :
         return float(self.model.predict(xgboost.DMatrix(numpy.array([translated_event])))[0])
 
-    def eval(self, input_sample, max_events=None, out_name='eval_bdt.root') :
+    def eval(self, input_sample, out_name, max_events=None) :
         output_sample = SampleContainer([out_name], input_sample.t)
         for event in input_sample.t :
-            output_sample.get_veto().setDiscValue(self.__eval__(input_sample.single_translation()))
+            output_sample.veto.setDiscValue(self.__eval__(input_sample.single_translation()))
             output_sample.t.Fill()
 
             if max_events is not None :

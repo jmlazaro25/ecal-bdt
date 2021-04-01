@@ -25,5 +25,7 @@ that the `discValue_` member of `EcalVeto` has been updated with the value calcu
 
 - Using Trigger-Skimmed 1e12 EoT Equivalent Enriched Nuclear Background Sample as training set
   (1e13 EoT Equivalent set will be testing set)
-- Using three 20k event files from each mass point as training set (after trigger skim)
-  (the rest -- 47 20k event files for each mass point -- will be testing set)
+- Using 15 event files from each mass point as training set (after trigger skim)
+  (the rest -- 35 event files for each mass point -- will be testing set)
+- This separation gives ~1M bkgd and ~1M signal events (mixed mass points) to train on while
+  ~10M bkgd and ~2.3M signal events to test on
