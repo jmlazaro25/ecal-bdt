@@ -6,6 +6,30 @@ from mods import ROOTmanager as manager
 from mods import physTools, mipTracking
 r.gSystem.Load('/home/jmlazaro/research/ldmx-sw/install/lib/libEvent.so')
 
+# TreeModel to build here
+branches_info = {
+        # Base Vars
+        'nReadoutHits':         {'rtype': int,   'default': 0 },
+        'summedDet':            {'rtype': float, 'default': 0.},
+        'summedTightIso':       {'rtype': float, 'default': 0.},
+        'maxCellDep':           {'rtype': float, 'default': 0.},
+        'showerRMS':            {'rtype': float, 'default': 0.},
+        'xStd':                 {'rtype': float, 'default': 0.},
+        'yStd':                 {'rtype': float, 'default': 0.},
+        'avgLayerHit':          {'rtype': float, 'default': 0.},
+        'stdLayerHit':          {'rtype': float, 'default': 0.},
+        'deepestLayerHit':      {'rtype': int,   'default': 0 },
+        'ecalBackEnergy':       {'rtype': float, 'default': 0.},
+        'recoilPT':             {'rtype': float, 'default': 0.},
+        # Segmentation Vars
+        # ----------------
+        # MIP tracking variables
+        'nStraightTracks':   {'rtype': int,   'default': 0 },
+        #'nLinregTracks':     {'rtype': int,   'default': 0 },
+        'firstNearPhLayer':  {'rtype': int,   'default': 33 },
+        'epAng':             {'rtype': float, 'default': 0.},
+        'epSep':             {'rtype': float, 'default': 0.}
+        }
 
 def main():
 
@@ -16,31 +40,6 @@ def main():
     group_labels = pdict['groupls']
     maxEvent = pdict['maxEvent']
 
-    # TreeModel to build here
-    branches_info = {
-            # Base Vars
-            'nReadoutHits':         {'rtype': int,   'default': 0 },
-            'summedDet':            {'rtype': float, 'default': 0.},
-            'summedTightIso':       {'rtype': float, 'default': 0.},
-            'maxCellDep':           {'rtype': float, 'default': 0.},
-            'showerRMS':            {'rtype': float, 'default': 0.},
-            'xStd':                 {'rtype': float, 'default': 0.},
-            'yStd':                 {'rtype': float, 'default': 0.},
-            'avgLayerHit':          {'rtype': float, 'default': 0.},
-            'stdLayerHit':          {'rtype': float, 'default': 0.},
-            'deepestLayerHit':      {'rtype': int,   'default': 0 },
-            'ecalBackEnergy':       {'rtype': float, 'default': 0.},
-            'recoilPT':             {'rtype': float, 'default': 0.},
-            # Segmentation Vars
-            # ----------------
-            # MIP tracking variables
-            'nStraightTracks':   {'rtype': int,   'default': 0 },
-            #'nLinregTracks':     {'rtype': int,   'default': 0 },
-            'firstNearPhLayer':  {'rtype': int,   'default': 33 },
-            'epAng':             {'rtype': float, 'default': 0.},
-            'epSep':             {'rtype': float, 'default': 0.}
-            }
-
     # Construct tree processes
     procs = []
     for gl, group in zip(group_labels, inlist):
@@ -49,6 +48,9 @@ def main():
     # Process jobs
     for proc in procs:
 
+        # Move into appropriate scratch dir
+        os.chdir(proc.tmp_dir)
+
         # Branches needed
         proc.ecalVeto     = proc.addBranch('EcalVetoResult', 'EcalVeto_v12')
         proc.targetSPHits = proc.addBranch('SimTrackerHit', 'TargetScoringPlaneHits_v12')
@@ -56,7 +58,7 @@ def main():
         proc.ecalRecHits  = proc.addBranch('EcalHit', 'EcalRecHits_v12')
 
         # Tree/Files(s) to make
-        print('Running %s'%(proc.ID))
+        print('\nRunning %s'%(proc.ID))
         proc.tfMaker = manager.TreeMaker(group_labels[procs.index(proc)]+'.root',\
                                          "EcalVeto",\
                                          branches_info,\
@@ -66,6 +68,9 @@ def main():
         # RUN
         proc.extraf = proc.tfMaker.wq # Gets executed at the end of run()
         proc.run(maxEvents=maxEvent)
+
+    # Remove scratch directory if there is one
+    manager.rmScratch()
 
     print('\nDone!\n')
 

@@ -14,11 +14,6 @@ from optparse import OptionParser
 mpl_logger = logging.getLogger('matplotlib')
 mpl_logger.setLevel(logging.WARNING)
 plt.use('Agg')
-sys.path.insert(0, '../')
-
-# Because remembering parsing flags can be annoying sometimes
-bkg_file = 'flats_1/bkg/bkg_train.root'
-sig_file = 'flats_1/sig/sig_train.root'
 
 class sampleContainer:
     def __init__(self,filename,maxEvts,isSig):
@@ -83,12 +78,12 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option('--seed', dest='seed',type="int",  default=2, help='Numpy random seed.')
     parser.add_option('--max_evt', dest='max_evt',type="int",  default=1500000, help='Max Events to load')
-    parser.add_option('--out_name', dest='out_name',  default='bdt_test', help='Output Pickle Name')
     parser.add_option('--eta', dest='eta',type="float",  default=0.023, help='Learning Rate')
     parser.add_option('--tree_number', dest='tree_number',type="int",  default=1000, help='Tree Number')
     parser.add_option('--depth', dest='depth',type="int",  default=10, help='Max Tree Depth')
-    parser.add_option('--bkg_file', dest='bkg_file', default=bkg_file, help='name of background file')
-    parser.add_option('--sig_file', dest='sig_file', default=sig_file, help='name of signal file')
+    parser.add_option('-b', dest='bkg_file', default='./bdt_0/bkg_train.root', help='name of background file')
+    parser.add_option('-s', dest='sig_file', default='./bdt_0/sig_train.root', help='name of signal file')
+    parser.add_option('-o', dest='out_name',  default='bdt_test', help='Output Pickle Name')
     (options, args) = parser.parse_args()
 
     # Seed numpy's randomness

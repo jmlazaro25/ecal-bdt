@@ -50,6 +50,8 @@ class TreeProcess:
     def __init__(self, event_process, group=[], tree=None, tree_name = None, ID = '',\
             color=1, maxEvents=-1, pfreq=1000, interactive=True, extraf=None):
 
+        print('\nPreparing {}'.format(ID))
+
         self.event_process = event_process
         self.group_files = group
         self.tree = tree
@@ -61,7 +63,6 @@ class TreeProcess:
         self.interactive = interactive
         self.extraf = extraf
         self.cwd = os.getcwd()
-
         
         # Build tree amd move operations to a scratch directory
         # if providing group_files instead of a tree
@@ -70,15 +71,23 @@ class TreeProcess:
         if self.tree == None:
             self.mvd = True
 
-            # Create the scratc directory if it doesn't already exist
-            scratch_dir='./scratch'
+            # Create the scratch directory if it doesn't already exist
+            scratch_dir = self.cwd + '/scratch'
             print( 'Using scratch path %s' % scratch_dir )
             if not os.path.exists(scratch_dir):
                 os.makedirs(scratch_dir)
 
+            # Get tmp num
+            num=0; check = True
+            while check:
+                if os.path.exists( scratch_dir+'/tmp_'+str(num) ):
+                    num += 1
+                else:
+                    check = False 
+
             # Create and mv into tmp directory that can be used to copy files into
             if self.interactive:
-                self.tmp_dir = '%s/%s' % (scratch_dir, 'tmp')
+                self.tmp_dir = '%s/%s' % (scratch_dir, 'tmp_'+str(num))
             else:
                 self.tmp_dir='%s/%s' % (scratch_dir, os.environ['LSB_JOBID'])
             if not os.path.exists(self.tmp_dir):
@@ -100,6 +109,9 @@ class TreeProcess:
                 self.tree = load(tmpfiles, self.tree_name)
             else:
                 self.tree = load(tmpfiles)
+
+            # Move back to cwd in case running multiple procs
+            os.chdir(self.cwd)
 
     def addBranch(self, ldmx_class, branch_name):
 
@@ -128,7 +140,7 @@ class TreeProcess:
         if maxEvents != -1: self.maxEvents = maxEvents
         else: self.maxEvents = self.tree.GetEntries()
         if pfreq != 1000: self.pfreq = pfreq
-        
+
         self.event_count = 0
         while self.event_count < self.maxEvents:
             self.tree.GetEntry(self.event_count)
@@ -215,6 +227,7 @@ class TreeMaker:
             if not os.path.exists(self.outdir):
                 print( 'Creating %s' % (self.outdir) )
                 os.makedirs(self.outdir)
+
             print( 'cp %s %s' % (self.outfile,self.outdir) )
             os.system('cp %s %s' % (self.outfile,self.outdir))
 
@@ -252,7 +265,7 @@ def parse(nolist = False):
             help='Director(y/ies) of input files')
     parser.add_argument('-g','-groupls', nargs='+', action='store', dest='group_labels',
             default='', help='Human readable sample labels e.g. for legends')
-    parser.add_argument('--out', nargs='+', action='store', dest='out', default=[],
+    parser.add_argument('-o','--out', nargs='+', action='store', dest='out', default=[],
             help='output files or director(y/ies) of output files')
             # if inputting directories, it's best to make a system
             # for naming files in main() of main script 
@@ -291,7 +304,7 @@ def parse(nolist = False):
 
     return pdict
 
-
+# Load a tree from a group of input files
 def load(group,treeName='LDMX_Events'):
 
     # Load a group of files into a readable tree
@@ -302,4 +315,9 @@ def load(group,treeName='LDMX_Events'):
 
     return tree
 
+# Remove scratch dir
+def rmScratch():
+    if os.path.exists('./scratch'):
+        print( '\nRemoving scratch directory' )
+        os.system('rm -rf ./scratch')
 
