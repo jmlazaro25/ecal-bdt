@@ -1,6 +1,6 @@
+import ecalIDTools
 import math
 import numpy as np
-from mods import ecalIDTools
 
 gap = 1.5
 moduler = 85.0
@@ -82,7 +82,7 @@ def isInside(normX, normY):
 # Position maps needed for ecal hex readout functions
 ###############################################################
 
-# Function to build the module position map
+# Subroutine to build the module position map
 def buildModuleMap():
 
     # Module IDs are 0 for ecal center, 1 at 12 o'clock, and clockwise till 6 at 11 o'clock
@@ -97,11 +97,11 @@ def buildModuleMap():
 
     return modulePositionMap
 
-# Function to build the cell position map
+# Subroutine to build the cell position map
 def buildCellMap():
 
-    # Strategy: Use honeycomb function to build large hexagonal grid, then copy from it the polygons which cover a module
-    # Make hexagonal grid (Boundary is rectangle) larger than the module
+    # Strategy: Use honeycomb function to build large hexagonal grid, then copy from it the polygons which cover a
+    # module. Make hexagonal grid (Boundary is rectangle) larger than the module
     cellPositionMap = {}
     gridMinX = -cellr
     gridMinY = 0.0
@@ -133,7 +133,6 @@ def buildCellMap():
 
     # Copy cells lying within module boundaries to a module grid
     ecalMapID = 0
-    ecalPolyVerts = []
 
     # For loop over hexagons (In EcalHexReadout.cxx, this is a while loop over TH2PolyBin)
     for hexa in hexaVerts:
@@ -155,103 +154,6 @@ def buildCellMap():
 
         if numVerticesInside > 1:
 
-            # Include this cell if more than one of its vertices is inside the module hexagon
-            actual_x = np.full(8, None)
-            actual_y = np.full(8, None)
-            num_vertices = 0
-
-            if numVerticesInside < 6:
-
-                # This cell is stradling the edge of the module and is NOT cleanly cut by module edge
-                # Loop through vertices
-                for i in range(0, 6):
-
-                    if i == 5:
-                        up = 0
-                    else:
-                        up = i + 1
-
-                    if i == 0:
-                        dn = 5
-                    else:
-                        dn = i - 1
-
-                    if (isinside[i]) and ((not isinside[up]) or (not isinside[dn])):
-
-                        # This vertex is inside the module hexagon and is adjacent to a vertex outside
-                        # Have to project this vertex onto the nearest edge of the module hexagon
-                        if vertex_x[i] < -0.5*moduleR:
-
-                            # Sloped edge on negative-x side
-                            edge_origin_x = -moduleR
-                            edge_origin_y = 0.0
-                            edge_dest_x = -0.5*moduleR
-                            edge_dest_y = moduler
-
-                        elif vertex_x[i] > 0.5*moduleR:
-
-                            # Sloped edge on positive-x side
-                            edge_origin_x = 0.5*moduleR
-                            edge_origin_y = moduler
-                            edge_dest_x = moduleR
-                            edge_dest_y = 0.0
-
-                        else:
-
-                            # Flat edge at top
-                            edge_origin_x = 0.5*moduleR
-                            edge_origin_y = moduler
-                            edge_dest_x = -0.5*moduleR
-                            edge_dest_y = moduler
-
-                        # Flip to bottom half if below x-axis
-                        if vertex_y[i] < 0:
-                            edge_dest_y *= -1
-                            edge_origin_y *= -1
-
-                        # Get edge slope vector
-                        edge_slope_x = edge_dest_x - edge_origin_x
-                        edge_slope_y = edge_dest_y - edge_origin_y
-
-                        # Project vertices adjacent to the vertex outside the module onto the module edge
-                        projection_factor = ((vertex_x[i] - edge_origin_x)*edge_slope_x
-                                            + (vertex_y[i] - edge_origin_y)*edge_slope_y)/(edge_slope_x**2 + edge_slope_y**2)
-
-                        proj_x = edge_origin_x + projection_factor*edge_slope_x
-                        proj_y = edge_origin_y + projection_factor*edge_slope_y
-
-                        if not isinside[up]:
-
-                            # The next point is outside
-                            actual_x[num_vertices] = vertex_x[i]
-                            actual_y[num_vertices] = vertex_y[i]
-                            actual_x[num_vertices + 1] = proj_x
-                            actual_y[num_vertices + 1] = proj_y
-
-                        else:
-
-                            # The previous point was outside
-                            actual_x[num_vertices] = proj_x
-                            actual_y[num_vertices] = proj_y
-                            actual_x[num_vertices + 1] = vertex_x[i]
-                            actual_y[num_vertices + 1] = vertex_y[i]
-
-                        num_vertices += 2
-
-                    else:
-                        actual_x[num_vertices] = vertex_x[i]
-                        actual_y[num_vertices] = vertex_y[i]
-                        num_vertices += 1
-
-            else:
-
-                # All 6 inside, just copy the vertices over
-                for i in range(0, 6):
-                    actual_x[i] = vertex_x[i]
-                    actual_y[i] = vertex_y[i]
-
-            ecalPolyVerts.append(np.array([(actual_x[k], actual_y[k]) for k in range(0, 8) if ((actual_x[k] is not None) and (actual_y[k] is not None))]))
-
             hexaXMax = sorted(hexa, key = lambda v: v[0])[-1][0]
             hexaXMin = sorted(hexa, key = lambda v: v[0])[0][0]
             hexaYMax = sorted(hexa, key = lambda v: v[1])[-1][1]
@@ -266,15 +168,15 @@ def buildCellMap():
             # Increment cell ID
             ecalMapID += 1
 
-    return cellPositionMap, np.array(ecalPolyVerts)
+    return cellPositionMap
 
 # Build the module position map
 modulePositionMap = buildModuleMap()
 
 # Build the cell position map
-cellPositionMap, ecalPolyVerts = buildCellMap()
+cellPositionMap = buildCellMap()
 
-# Function to build the cell module position map
+# Subroutine to build the cell module position map
 def buildCellModuleMap():
     cellModulePositionMap = {}
 
@@ -294,74 +196,15 @@ def buildCellModuleMap():
 # Build the cell module position map
 cellModulePositionMap = buildCellModuleMap()
 
-def buildNeighborMaps():
-
-    # Strategy: Neighbors may include from other modules. All this is precomputed. So we can be wasteful here.
-    # Gaps may be nonzero, so we simply apply an annulus requirement (r < point <= r+dr) using total x,y positions
-    # relative to the ecal center (cell + module positions). This makes the routine portable to future cell layouts.
-    # Note that the module centers already take into account a nonzero gap
-    # The number of neighbors is not simple because:Edges, and that module edges have cutoff cells
-    #     (NN) Center within [cellr_, 3*cellr_]
-    #     (NNN) Center within [3*cellr_, 4.5*cellr_]
-    #     Chosen because in ideal case, centers are at 2*cell_ (NN), and at 3*cellR = 3.46*cellr and 4*cellr (NNN)
-    NNMap = {}
-    NNNMap = {}
-
-    for centerID in cellModulePositionMap:
-        NNMap[centerID] = []
-        NNNMap[centerID] = []
-        centerX = cellModulePositionMap[centerID][0]
-        centerY = cellModulePositionMap[centerID][1]
-
-        for probeID in cellModulePositionMap:
-            probeX = cellModulePositionMap[probeID][0]
-            probeY = cellModulePositionMap[probeID][1]
-            dist = math.sqrt((probeX - centerX)**2 + (probeY - centerY)**2)
-
-            if (dist > cellr) and (dist <= 3*cellr):
-                NNMap[centerID].append(probeID)
-
-            elif (dist > 3*cellr) and (dist <= 4.5*cellr):
-                NNNMap[centerID].append(probeID)
-
-    for centerID in NNMap:
-        NNMap[centerID] = np.array(NNMap[centerID])
-
-    for centerID in NNNMap:
-        NNNMap[centerID] = np.array(NNNMap[centerID])
-
-    return NNMap, NNNMap
-
-# Build the neighbor maps
-NNMap, NNNMap = buildNeighborMaps()
-
 ######################################
 # Ecal hex readout functions
 ######################################
 
-def getNN(ID):
-    centerID = [centerID_ for centerID_ in NNMap if ecalIDTools.isFlatEcalID(ID, centerID_)][0]
-    return np.array([ecalIDTools.EcalID(ID.getLayerID(), probeID.getModuleID(), probeID.getCellID()) for probeID in NNMap[centerID]])
-
-def isNN(ID, probeID):
-    for probeID_ in getNN(ID):
-        if ecalIDTools.isSameEcalID(probeID, probeID_):
-            return True
-    return False
-
-def getNNN(ID):
-    centerID = [centerID_ for centerID_ in NNNMap if ecalIDTools.isFlatEcalID(ID, centerID_)][0]
-    return np.array([ecalIDTools.EcalID(ID.getLayerID(), probeID.getModuleID(), probeID.getCellID()) for probeID in NNNMap[centerID]])
-
-def isNNN(ID, probeID):
-    for probeID_ in getNNN(ID):
-        if ecalIDTools.isSameEcalID(probeID, probeID_):
-            return True
-    return False
-
+# Function to get the layerZ associated with a layerID
 def getZPosition(layerID):
     return ecalFrontZ + layerZPositions[layerID]
 
+# Function to get the position of a cell associated with an ecalID
 def getCellCenterAbsolute(ID):
     flatID = [flatID_ for flatID_ in cellModulePositionMap if ecalIDTools.isFlatEcalID(ID, flatID_)][0]
     return cellModulePositionMap[flatID]

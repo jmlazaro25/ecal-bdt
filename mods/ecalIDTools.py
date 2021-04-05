@@ -51,6 +51,7 @@ class EcalID:
     def getCellID(self):
         return self.cellID
 
+# Function to build an empty ecalID
 def emptyEcalID():
     return EcalID(None, None, None)
 
