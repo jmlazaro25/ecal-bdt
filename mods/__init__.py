@@ -1,7 +1,4 @@
-__all__ = ['ROOTmanager', 
-           'physTools',
-           'mipTracking',
-           'contVarsTools',
-           'ecalHexReadoutTools',
-           'ecalIDTools'
+__all__ = ['mipTracking',
+           'ROOTmanager',
+           'physTools'
            ]
