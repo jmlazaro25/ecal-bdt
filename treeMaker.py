@@ -411,9 +411,9 @@ branches_info = {
         'oContLayerStd_x4_s3':       {'rtype': float, 'default': 0.},
         'oContLayerStd_x5_s3':       {'rtype': float, 'default': 0.},
         # MIP tracking variables
-        'nStraightTracks':           {'rtype': int,   'default': 0 },
-        #'nLinregTracks':            {'rtype': int,   'default': 0 },
-        'firstNearPhLayer':          {'rtype': int,   'default': 33 },
+        'nStraightTracks':           {'rtype': int, 'default': 0},
+        #'nLinregTracks':             {'rtype': int, 'default': 0},
+        'firstNearPhLayer':          {'rtype': int, 'default': 33},
         'epAng':                     {'rtype': float, 'default': 0.},
         'epSep':                     {'rtype': float, 'default': 0.}
         }
@@ -509,7 +509,7 @@ def event_process(self):
         g_traj = physTools.layerIntercepts(g_targPos, g_targP)
 
     # Recoil electron momentum magnitude and angle with z-axis
-    feats['recoilPT'] = recoilPMag = physTools.mag(  e_ecalP ) if e_present      else -1.0
+    recoilPMag = physTools.mag(  e_ecalP ) if e_present      else -1.0
     recoilTheta =    physTools.angle(e_ecalP, units='radians') if recoilPMag > 0 else -1.0
 
     # Set electron RoC binnings
@@ -614,7 +614,7 @@ def event_process(self):
                 feats['oContXMean_x' + str(i + 1) + '_s' + str(j + 1)] /= feats['oContEnergy_x' + str(i + 1) + '_s' + str(j + 1)]
                 feats['oContYMean_x' + str(i + 1) + '_s' + str(j + 1)] /= feats['oContEnergy_x' + str(i + 1) + '_s' + str(j + 1)]
                 feats['oContLayerMean_x' + str(i + 1) + '_s' + str(j + 1)] /= feats['oContEnergy_x' + str(i + 1) + '_s' + str(j + 1)]
-
+    
     # MIP tracking starts here
 
     # Goal: Calculate 

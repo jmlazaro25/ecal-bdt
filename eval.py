@@ -69,8 +69,8 @@ def event_process(self):
             self.tree.deepestLayerHit,
 
             self.tree.ecalBackEnergy,
-            self.tree.recoilPT,
             self.tree.nStraightTracks
+
             ]
 
     # Copy input tree feats to new tree

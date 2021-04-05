@@ -29,26 +29,23 @@ class sampleContainer:
         for event in self.tree:
             if len(self.events) >= self.maxEvts:
                 continue
-            evt = []
+            evt = [
+                    event.nReadoutHits      , 
+                    event.summedDet         ,
+                    event.summedTightIso    ,
+                    event.maxCellDep        ,
+                    event.showerRMS         ,
+    
+                    event.xStd              ,
+                    event.yStd              ,
+                    event.avgLayerHit       ,
+                    event.stdLayerHit       ,
+                    event.deepestLayerHit   ,
 
-            ###################################
-            # Features
-            ###################################
-            evt.append(event.nReadoutHits)          # 0
-            evt.append(event.summedDet)             # 1
-            evt.append(event.summedTightIso)        # 2
-            evt.append(event.maxCellDep)            # 3
-            evt.append(event.showerRMS)             # 4
+                    event.ecalBackEnergy    ,
+                    event.nStraightTracks
 
-            evt.append(event.xStd)                  # 5
-            evt.append(event.yStd)                  # 6
-            evt.append(event.avgLayerHit)           # 7
-            evt.append(event.stdLayerHit)           # 8
-            evt.append(event.deepestLayerHit)       # 9
-
-            evt.append(event.ecalBackEnergy)        # 10
-            evt.append(event.recoilPT)              # 11
-            evt.append(event.nStraightTracks)       # 12
+                    ]
 
             self.events.append(evt)
 
