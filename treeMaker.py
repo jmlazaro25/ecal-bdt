@@ -20,7 +20,6 @@ branches_info = {
         'stdLayerHit':          {'rtype': float, 'default': 0.},
         'deepestLayerHit':      {'rtype': int,   'default': 0 },
         'ecalBackEnergy':       {'rtype': float, 'default': 0.},
-        'recoilPT':             {'rtype': float, 'default': 0.},
         # Segmentation Vars
         # ----------------
         # MIP tracking variables
@@ -122,7 +121,7 @@ def event_process(self):
         g_traj = physTools.layerIntercepts(g_targPos, g_targP)
 
     # Recoil electron momentum magnitude and angle with z-axis
-    feats['recoilPT'] = recoilPMag = physTools.mag(  e_ecalP ) if e_present      else -1.0
+    recoilPMag = physTools.mag(  e_ecalP ) if e_present      else -1.0
     recoilTheta =    physTools.angle(e_ecalP, units='radians') if recoilPMag > 0 else -1.0
 
     # Set electron RoC binnings
