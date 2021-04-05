@@ -21,7 +21,6 @@ branches_info = {
         'stdLayerHit':               {'rtype': float, 'default': 0.},
         'deepestLayerHit':           {'rtype': int,   'default': 0 },
         'ecalBackEnergy':            {'rtype': float, 'default': 0.},
-        'recoilPT':                  {'rtype': float, 'default': 0.},
         # Longitudinal segment variables
         'energy_s1':                 {'rtype': float, 'default': 0.},
         'energy_s2':                 {'rtype': float, 'default': 0.},
