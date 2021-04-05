@@ -45,16 +45,10 @@ class SampleContainer:
 
     def single_translation(self) :
         return [
-            self.veto.getNReadoutHits(),
             self.veto.getSummedDet(),
-            self.veto.getSummedTightIso(),
-            self.veto.getMaxCellDep(),
             self.veto.getShowerRMS(),
-            self.veto.getXStd(),
-            self.veto.getYStd(),
             self.veto.getAvgLayerHit(),
             self.veto.getStdLayerHit(),
-            self.veto.getDeepestLayerHit(),
             self.veto.getEcalBackEnergy(),
             self.veto.getNStraightTracks(),
             self.veto.getNLinRegTracks()
@@ -95,7 +89,7 @@ class Trainer :
 
     def train(self, tree_number = 1, eta = 0.023, depth = 10) :
         # Actual training
-        self.training_parameters = {'objective': 'binary:logistic',
+        training_parameters = {'objective': 'binary:logistic',
                   'eta': eta,
                   'max_depth': depth,
                   'min_child_weigrt': 20,
