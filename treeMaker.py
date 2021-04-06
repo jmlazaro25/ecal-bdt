@@ -44,34 +44,34 @@ for i in range(1, physTools.nSegments + 1):
     for j in range(1, physTools.nRegions + 1):
 
         # Electron RoC variables
-        branches_info['eContEnergy_x{}_s{}'.format(j, i)]   = {'rtype': float, 'default': 0.}
-        branches_info['eContNHits_x{}_s{}'.format(j, i)]    = {'rtype': int,    'default': 0}
-        branches_info['eContXMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
-        branches_info['eContYMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
-        branches_info['eContLayerMean_x{}_s{}'.format(j, i) = {'rtype': float, 'default': 0.}
-        branches_info['eContXStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
-        branches_info['eContYStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
-        branches_info['eContLayerStd_x{}_s{}'.format(j, i)] = {'rtype': float, 'default': 0.}
+        branches_info['eContEnergy_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
+        branches_info['eContNHits_x{}_s{}'.format(j, i)]     = {'rtype': int,    'default': 0}
+        branches_info['eContXMean_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
+        branches_info['eContYMean_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
+        branches_info['eContLayerMean_x{}_s{}'.format(j, i)] = {'rtype': float, 'default': 0.}
+        branches_info['eContXStd_x{}_s{}'.format(j, i)]      = {'rtype': float, 'default': 0.}
+        branches_info['eContYStd_x{}_s{}'.format(j, i)]      = {'rtype': float, 'default': 0.}
+        branches_info['eContLayerStd_x{}_s{}'.format(j, i)]  = {'rtype': float, 'default': 0.}
 
         # Photon RoC variables
-        branches_info['gContEnergy_x{}_s{}'.format(j, i)]   = {'rtype': float, 'default': 0.}
-        branches_info['gContNHits_x{}_s{}'.format(j, i)]    = {'rtype': int,    'default': 0}
-        branches_info['gContXMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
-        branches_info['gContYMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
-        branches_info['gContLayerMean_x{}_s{}'.format(j, i) = {'rtype': float, 'default': 0.}
-        branches_info['gContXStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
-        branches_info['gContYStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
-        branches_info['gContLayerStd_x{}_s{}'.format(j, i)] = {'rtype': float, 'default': 0.}
+        branches_info['gContEnergy_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
+        branches_info['gContNHits_x{}_s{}'.format(j, i)]     = {'rtype': int,    'default': 0}
+        branches_info['gContXMean_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
+        branches_info['gContYMean_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
+        branches_info['gContLayerMean_x{}_s{}'.format(j, i)] = {'rtype': float, 'default': 0.}
+        branches_info['gContXStd_x{}_s{}'.format(j, i)]      = {'rtype': float, 'default': 0.}
+        branches_info['gContYStd_x{}_s{}'.format(j, i)]      = {'rtype': float, 'default': 0.}
+        branches_info['gContLayerStd_x{}_s{}'.format(j, i)]  = {'rtype': float, 'default': 0.}
 
         # Outside RoC variables
-        branches_info['oContEnergy_x{}_s{}'.format(j, i)]   = {'rtype': float, 'default': 0.}
-        branches_info['oContNHits_x{}_s{}'.format(j, i)]    = {'rtype': int,    'default': 0}
-        branches_info['oContXMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
-        branches_info['oContYMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
-        branches_info['oContLayerMean_x{}_s{}'.format(j, i) = {'rtype': float, 'default': 0.}
-        branches_info['oContXStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
-        branches_info['oContYStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
-        branches_info['oContLayerStd_x{}_s{}'.format(j, i)] = {'rtype': float, 'default': 0.}
+        branches_info['oContEnergy_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
+        branches_info['oContNHits_x{}_s{}'.format(j, i)]     = {'rtype': int,    'default': 0}
+        branches_info['oContXMean_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
+        branches_info['oContYMean_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
+        branches_info['oContLayerMean_x{}_s{}'.format(j, i)] = {'rtype': float, 'default': 0.}
+        branches_info['oContXStd_x{}_s{}'.format(j, i)]      = {'rtype': float, 'default': 0.}
+        branches_info['oContYStd_x{}_s{}'.format(j, i)]      = {'rtype': float, 'default': 0.}
+        branches_info['oContLayerStd_x{}_s{}'.format(j, i)]  = {'rtype': float, 'default': 0.}
 
 def main():
 
@@ -202,7 +202,8 @@ def event_process(self):
             # Decide which longitudinal segment the hit is in and add to sums
             for i in range(1, physTools.nSegments + 1):
 
-                if (physTools.segLayers[i - 1] <= layer) and (layer <= physTools.segLayers[i] - 1):
+                if (physTools.segLayers[i - 1] <= layer)\
+                  and (layer <= physTools.segLayers[i] - 1):
                     feats['energy_s{}'.format(i)] += hit.getEnergy()
                     feats['nHits_s{}'.format(i)] += 1
                     feats['xMean_s{}'.format(i)] += xy_pair[0]*hit.getEnergy()
@@ -212,21 +213,24 @@ def event_process(self):
                     # Decide which containment region the hit is in and add to sums
                     for j in range(1, physTools.nRegions + 1):
 
-                        if ((j - 1)*e_radii[layer] <= distance_e_traj) and (distance_e_traj < j*e_radii[layer]):
+                        if ((j - 1)*e_radii[layer] <= distance_e_traj)\
+                          and (distance_e_traj < j*e_radii[layer]):
                             feats['eContEnergy_x{}_s{}'.format(j, i)] += hit.getEnergy()
                             feats['eContNHits_x{}_s{}'.format(j, i)] += 1
                             feats['eContXMean_x{}_s{}'.format(j, i)] += xy_pair[0]*hit.getEnergy()
                             feats['eContYMean_x{}_s{}'.format(j, i)] += xy_pair[1]*hit.getEnergy()
                             feats['eContLayerMean_x{}_s{}'.format(j, i)] += layer*hit.getEnergy()
 
-                        if ((j - 1)*g_radii[layer] <= distance_g_traj) and (distance_g_traj < j*g_radii[layer]):
+                        if ((j - 1)*g_radii[layer] <= distance_g_traj)\
+                          and (distance_g_traj < j*g_radii[layer]):
                             feats['gContEnergy_x{}_s{}'.format(j, i)] += hit.getEnergy()
                             feats['gContNHits_x{}_s{}'.format(j, i)] += 1
                             feats['gContXMean_x{}_s{}'.format(j, i)] += xy_pair[0]*hit.getEnergy()
                             feats['gContYMean_x{}_s{}'.format(j, i)] += xy_pair[1]*hit.getEnergy()
                             feats['gContLayerMean_x{}_s{}'.format(j, i)] += layer*hit.getEnergy()
 
-                        if (distance_e_traj > j*e_radii[layer]) and (distance_g_traj > j*g_radii[layer]):
+                        if (distance_e_traj > j*e_radii[layer])\
+                          and (distance_g_traj > j*g_radii[layer]):
                             feats['oContEnergy_x{}_s{}'.format(j, i)] += hit.getEnergy()
                             feats['oContNHits_x{}_s{}'.format(j, i)] += 1
                             feats['oContXMean_x{}_s{}'.format(j, i)] += xy_pair[0]*hit.getEnergy()
@@ -293,17 +297,20 @@ def event_process(self):
                 # Decide which containment region the hit is in and add to sums
                 for j in range(1, physTools.nRegions + 1):
 
-                    if ((j - 1)*e_radii[layer] <= distance_e_traj) and (distance_e_traj < j*e_radii[layer]):
+                    if ((j - 1)*e_radii[layer] <= distance_e_traj)\
+                      and (distance_e_traj < j*e_radii[layer]):
                         feats['eContXStd_x{}_s{}'.format(j, i)] += ((xy_pair[0] - feats['eContXMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
                         feats['eContYStd_x{}_s{}'.format(j, i)] += ((xy_pair[1] - feats['eContYMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
                         feats['eContLayerStd_x{}_s{}'.format(j, i)] += ((layer - feats['eContLayerMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
 
-                    if ((j - 1)*g_radii[layer] <= distance_g_traj) and (distance_g_traj < j*g_radii[layer]):
+                    if ((j - 1)*g_radii[layer] <= distance_g_traj)\
+                      and (distance_g_traj < j*g_radii[layer]):
                         feats['gContXStd_x{}_s{}'.format(j, i)] += ((xy_pair[0] - feats['gContXMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
                         feats['gContYStd_x{}_s{}'.format(j, i)] += ((xy_pair[1] - feats['gContYMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
                         feats['gContLayerStd_x{}_s{}'.format(j, i)] += ((layer - feats['gContLayerMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
 
-                    if (distance_e_traj > j*e_radii[layer]) and (distance_g_traj > j*g_radii[layer]):
+                    if (distance_e_traj > j*e_radii[layer])\
+                      and (distance_g_traj > j*g_radii[layer]):
                         feats['oContXStd_x{}_s{}'.format(j, i)] += ((xy_pair[0] - feats['oContXMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
                         feats['oContYStd_x{}_s{}'.format(j, i)] += ((xy_pair[1] - feats['oContYMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
                         feats['oContLayerStd_x{}_s{}'.format(j, i)] += ((layer - feats['oContLayerMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
