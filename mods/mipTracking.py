@@ -11,9 +11,12 @@ def firstNearPhLayer(trackingHitList,g_trajectory):
 
     layer = 33
     for hit in trackingHitList:
-        if hit.layer < layer and\
-                physTools.dist( hit.pos[:2],g_trajectory[hit.layer] ) < physTools.cellWidth:
-            layer = hit.layer
+        #print(type(),type(),type())
+        if physTools.layerofHitZ( hit.getZPos() ) < layer and\
+                physTools.dist( physTools.pos(hit)[:2],
+                                g_trajectory[ physTools.layerofHitZ( hit.getZPos() ) ] )\
+                < physTools.cellWidth:
+            layer = physTools.layerofHitZ( hit.getZPos() )
 
     return layer
 
@@ -21,7 +24,101 @@ def firstNearPhLayer(trackingHitList,g_trajectory):
 # Straight tracks
 ##########################
 
-def nStraightTracks(trackingHitList, e_traj_ends, g_traj_ends):
+# Based on previous python; All of v9 analysis done with this
+def findStraightTracks(hitlist, etraj_ends, ptraj_ends,\
+                        mst = 2, returnN=True, returnHitList = False, returnTracks = False):
+
+    strtracklist = []   # Initialize output
+    hitscopy = hitlist  # Need this because hitlist gets eddited
+
+    for hit in hitlist:  #Go through all hits, starting at the back of the ecal
+        track = [hit]
+        currenthit = hit  #Stores "trailing" hit in track being constructed
+        possibleNeigh = False
+        for h in hitscopy:
+            if h.getZPos() == currenthit.getZPos():
+                possibleNeigh = True  #Optimization
+                continue
+            if not possibleNeigh:  continue
+            if currenthit.getZPos() - h.getZPos() > 25:  #Optimization
+                possibleNeigh = False
+                continue
+            neighFound = (
+                    (physTools.layerofHitZ(h.getZPos()) ==\
+                            physTools.layerofHitZ(currenthit.getZPos()) - 1 or\
+                     physTools.layerofHitZ(h.getZPos()) ==\
+                            physTools.layerofHitZ(currenthit.getZPos()) -2) and\
+                     h.getXPos() == currenthit.getXPos() and\
+                     h.getYPos() == currenthit.getYPos() )
+            if neighFound:
+                track.append(h)
+                currenthit = h
+
+        # Too short
+        if len(track) < mst: continue
+
+        # If it's exactly the min, it has to be very close to ptraj
+        if len(track) == mst: 
+            for hitt in track:
+                if physTools.distPtToLine( physTools.pos(hitt),
+                        ptraj_ends[0], ptraj_ends[1] ) > 8:
+                    break
+                continue
+
+        # Check that the track approaches the photon's and not the electron's
+        trk_s = np.array( (track[ 0].getXPos(), track[ 0].getYPos(), track[ 0].getZPos() ) )
+        trk_e = np.array( (track[-1].getXPos(), track[-1].getYPos(), track[-1].getZPos() ) )
+        closest_e = physTools.distTwoLines( etraj_ends[0], etraj_ends[1], trk_s, trk_e )
+        closest_p = physTools.distTwoLines( ptraj_ends[0], ptraj_ends[1], trk_s, trk_e )
+        if closest_p > 8.7 and closest_e < 17.4:
+            continue
+
+        # Remove hits in current track from further consideration
+        for h in track:
+            hitlist.remove(h)
+
+        # Append track to track list
+        strtracklist.append(track)
+
+    # Combine tracks that should be consecutive
+    # NOTE: Should maybe do this eariler in case 2 len=2 tracks add up to a passing 4
+    strtracklist.sort(key=lambda h: hit.getZPos(), reverse=True) # Should be done check this
+
+    currentInd = 0
+    while currentInd < len(strtracklist):
+        
+        trk = strtracklist[currentInd]
+        tmpInd = currentInd+1
+        mergeFound = False
+
+        # Search for track compatible with current one
+        while tmpInd < len(strtracklist) and not mergeFound:
+            trk_ = strtracklist[tmpInd]
+            trk_e = np.array( (track[-1].getXPos(), track[-1].getYPos(),
+                                                    track[-1].getZPos() ) )
+            trk_s = np.array( (track[ 0].getXPos(), track[ 0].getYPos(),
+                                                    track[ 0].getZPos() ) )
+            # If head+tail are w/in one cell of each other
+            if physTools.dist( trk_e, trk_s ) < 8.7:
+                for hit in trk_:
+                    trk.append(hit)
+                strtracklist.remove(trk_)
+                mergeFound = True
+            tmpInd += 1
+        if not mergeFound:
+            currentInd += 1
+
+    # Prepare and return desired output
+    out = []
+    if returnN: out.append( len(strtracklist) )
+    if returnHitList: out.append( hitlist )
+    if returnTracks: out.append( strtracklist )
+
+    return out
+
+
+# Based on C++ Analyzer
+def nStraightTracks_c(trackingHitList, e_traj_ends, g_traj_ends):
 
     nTracks = 0
 
@@ -88,7 +185,7 @@ def nStraightTracks(trackingHitList, e_traj_ends, g_traj_ends):
 # Linreg tracks
 ##########################
 
-# Hyper incomplete
+# Not in v9 feature list so postponing this
 def nLinregTracks(trackingHitList, e_traj_ends, g_traj_ends):
 
     nTracks = 0

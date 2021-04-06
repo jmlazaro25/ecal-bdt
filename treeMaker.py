@@ -140,10 +140,7 @@ def event_process(self):
     for hit in self.ecalRecHits:
         
         if hit.getEnergy() > 0:
-            # idd = hitID(hit) # (maybe .getID() or .get_id(/)) and this abv cond in cxx v
-            # See https://github.com/LDMX-Software/ldmx-sw/blob/23be9750016eab9cc16a4a933cd584363e05dfba/Event/include/Event/CalorimeterHit.h
 
-            feats['nReadoutHits'] += 1
             layer = physTools.layerofHitZ( hit.getZPos(), index=0 )
             xy_pair = ( hit.getXPos(), hit.getYPos() )
 
@@ -161,10 +158,7 @@ def event_process(self):
 
             # Build MIP tracking hit list; (outside electron region or electron missing)
             if distance_e_traj >= e_radii[layer] or distance_e_traj == -1.0:
-                hitData = physTools.HitData()
-                hitData.pos = np.array( [xy_pair[0],xy_pair[1],hit.getZPos() ] )
-                hitData.layer = layer
-                trackingHitList.append(hitData) 
+                trackingHitList.append(hit) 
     
     # MIP tracking starts here
 
@@ -207,11 +201,12 @@ def event_process(self):
         feats['firstNearPhLayer'] = mipTracking.firstNearPhLayer( trackingHitList, g_traj )
 
     # Order hits by zpos for efficiency
-    trackingHitList.sort(key=lambda hd: hd.layer, reverse=True)
+    trackingHitList.sort(key=lambda hd: hd.getZPos(), reverse=True)
 
     # Find MIP tracks
-    feats['nStraightTracks'], trackingHitList = mipTracking.nStraightTracks(trackingHitList,
-                                                        e_traj_ends, e_traj_ends)
+    feats['nStraightTracks'], trackingHitList = mipTracking.findStraightTracks(\
+                                trackingHitList, e_traj_ends, e_traj_ends,
+                                mst = 4, returnHitList = True)
     #feats['nLinregTracks'] = mipTracking.nLinregTracks( trackingHitList,
     #                                                    e_traj_ends, e_traj_ends)
 

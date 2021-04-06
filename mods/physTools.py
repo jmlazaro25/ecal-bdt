@@ -69,7 +69,7 @@ def rotate(point,ang): # move to math eventually
     return list(np.dot(rotM,point))
 
 # Get layer number from hitZ
-def layerofHitZ(hitZ, index):
+def layerofHitZ(hitZ, index = 0):
     num = ecal_rz2layer[ round(hitZ) ]
     if index == 1: return num
     elif index == 0: return num - 1
@@ -77,7 +77,7 @@ def layerofHitZ(hitZ, index):
 
 # Get Z in ecal_layerZs from hitZ
 def layerZofHitZ(hitZ):
-    return ecal_layerZs[ layerofHitZ(hitZ,0) ]
+    return ecal_layerZs[ layerofHitZ(hitZ) ]
 
 # Project poimt to z_final
 def projection(pos_init, mom_init, z_final): # infty >.<
@@ -106,6 +106,11 @@ def dist(p1, p2):
     p1, p2 = np.array(p1), np.array(p2)
     return mag(p1 - p2)
 
+# Distance between a point and the nearest point on a line defined by endpoints
+def distPtToLine(h1,p1,p2):
+    return unit(np.cross((np.array(h1)-np.array(p1)),
+        (np.array(h1)-np.array(p2)))) / unit(np.array(p1)-np.array(p2))
+
 # Minimum distance between lines, each line defined by two points
 def distTwoLines(h1,h2,p1,p2):
     e1  = unit( h1 - h2 )
@@ -122,6 +127,9 @@ def angle(vec, units):
     elif units=='radians': return math.acos(vec[2]/mag(vec))
     else: print('\nSpecify valid angle unit ("degrees" or "randians")')
 
+# Get np.ndarray of hit position
+def pos(hit):
+    return np.array( ( hit.getXPos(), hit.getYPos(), hit.getZPos() ) )
 
 ###########################
 # Get e/gamma SP hit info
