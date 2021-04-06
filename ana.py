@@ -35,7 +35,7 @@ arg = parser.parse_args()
 
 p = HistogramPool()
 
-output_file = ROOT.TFile.Open(f'hists_{arg.out}.root','RECREATE')
+output_file = ROOT.TFile.Open(arg.out,'RECREATE')
 eatAna_d = output_file.mkdir('eatAna')
 for c in ['nuc','ap1','ap5','ap10','ap50','ap100','ap500','ap1000'] :
     d = eatAna_d.mkdir(c)
@@ -52,7 +52,7 @@ for c in ['nuc','ap1','ap5','ap10','ap50','ap100','ap500','ap1000'] :
 evaluator = None
 if arg.bdt is not None :
   evaluator = bdt.Evaluator(arg.bdt)
-input_sample = bdt.SampleContainer(arg.input_file)
+input_sample = bdt.SampleContainer(bdt.smart_recursive_input(arg.input_file))
 
 sim_particles = ROOT.std.map(int,'ldmx::SimParticle')()
 input_sample.__attach__(sim_particles, 'SimParticles')

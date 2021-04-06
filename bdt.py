@@ -4,12 +4,33 @@ Core methods for both training and evaluating the BDT
 
 import ROOT
 
+import os
 import numpy
 import pickle
 import xgboost
 import matplotlib
 
 ROOT.gSystem.Load('libFramework.so')
+
+def smart_recursive_input(file_or_dir) :
+    """Recursively add the full path to the file or files in the input directory"""
+    full_list = []
+    if isinstance(file_or_dir,list) :
+        for entry in file_or_dir :
+            full_list.extend(smart_recursive_input(entry))
+    elif os.path.isfile(file_or_dir) and file_or_dir.endswith('.root') :
+        full_list.append(os.path.realpath(file_or_dir))
+    elif os.path.isfile(file_or_dir) and file_or_dir.endswith('.list') :
+        with open(file_or_dir) as listing :
+            file_listing = listing.readlines()
+
+        full_list.extend(smart_recursive_input([f.strip() for f in file_listing]))
+    elif os.path.isdir(file_or_dir) :
+        full_list.extend(smart_recursive_input([os.path.join(file_or_dir,f) for f in os.listdir(file_or_dir)]))
+    else :
+        print(f"'{file_or_dir}' is not a ROOT file, a directory, or a list of files. Skipping.")
+    #file or directory
+    return full_list
 
 class SampleContainer:
     def __init__(self, file_paths, tree_to_clone=None):

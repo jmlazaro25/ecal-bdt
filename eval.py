@@ -15,27 +15,13 @@ parser.add_argument('--files_per_job',default=1,type=int,help='Number files to m
 
 arg = parser.parse_args()
 
-full_input_list = []
-
-def recursive_input(file_or_dir) :
-    """Recursively add the full path to the file or files in the input directory"""
-    if os.path.isfile(file_or_dir) and file_or_dir.endswith('.root') :
-        full_input_list.append(os.path.realpath(file_or_dir))
-    elif os.path.isdir(file_or_dir) :
-        for f in os.listdir(file_or_dir) :
-            recursive_input(os.path.join(file_or_dir,f))
-        #end loop over files in dir
-    else :
-        print("'%s' is not a ROOT file or a directory. Skipping."%(file_or_dir))
-    #file or directory
-
-for input_file in arg.input_file :
-    recursive_input(input_file)
-
 import bdt
 
 print('Loading BDT into memory...')
 e = bdt.Evaluator(arg.bdt)
+
+print('Getting file listing...')
+full_input_list = list(bdt.smart_recursive_input(arg.input_file))
 
 for sub_list in [ full_input_list[i:i+arg.files_per_job] for i in range(0,len(full_input_list),arg.files_per_job) ] :
     print('Loading sample to evaluate...')
