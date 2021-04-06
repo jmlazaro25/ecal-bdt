@@ -86,7 +86,7 @@ def findStraightTracks(hitlist, etraj_ends, ptraj_ends,\
 
     currentInd = 0
     while currentInd < len(strtracklist):
-        
+
         trk = strtracklist[currentInd]
         tmpInd = currentInd+1
         mergeFound = False
