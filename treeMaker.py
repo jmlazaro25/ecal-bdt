@@ -4,8 +4,8 @@ import ROOT as r
 import numpy as np
 from mods import ROOTmanager as manager
 from mods import physTools, mipTracking
-r.gSystem.Load('/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v2.3.0-w-container/ldmx-sw/install/lib/libEvent.so')
-#r.gSystem.Load('/home/jmlazaro/research/ldmx-sw/install/lib/libEvent.so')
+#r.gSystem.Load('/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v2.3.0-w-container/ldmx-sw/install/lib/libEvent.so')
+r.gSystem.Load('/home/jmlazaro/research/ldmx-sw/install/lib/libEvent.so')
 
 # TreeModel to build here
 branches_info = {
@@ -44,34 +44,34 @@ for i in range(1, physTools.nSegments + 1):
     for j in range(1, physTools.nRegions + 1):
 
         # Electron RoC variables
-        branches_info['eContEnergy_x{}_s{}'.format(j, i)]          = {'rtype': float, 'default': 0.}
-        branches_info['eContNHits_x{}_s{}'.format(j, i)]           = {'rtype': int,    'default': 0}
-        branches_info['eContXMean_x{}_s{}'.format(j, i)]           = {'rtype': float, 'default': 0.}
-        branches_info['eContYMean_x{}_s{}'.format(j, i)]           = {'rtype': float, 'default': 0.}
-        branches_info['eContLayerMean_x{}_s{}'.format(j, i)]       = {'rtype': float, 'default': 0.}
-        branches_info['eContXStd_x{}_s{}'.format(j, i)]            = {'rtype': float, 'default': 0.}
-        branches_info['eContYStd_x{}_s{}'.format(j, i)]            = {'rtype': float, 'default': 0.}
-        branches_info['eContLayerStd_x{}_s{}'.format(j, i)]        = {'rtype': float, 'default': 0.}
+        branches_info['eContEnergy_x{}_s{}'.format(j, i)]   = {'rtype': float, 'default': 0.}
+        branches_info['eContNHits_x{}_s{}'.format(j, i)]    = {'rtype': int,    'default': 0}
+        branches_info['eContXMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
+        branches_info['eContYMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
+        branches_info['eContLayerMean_x{}_s{}'.format(j, i) = {'rtype': float, 'default': 0.}
+        branches_info['eContXStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
+        branches_info['eContYStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
+        branches_info['eContLayerStd_x{}_s{}'.format(j, i)] = {'rtype': float, 'default': 0.}
 
         # Photon RoC variables
-        branches_info['gContEnergy_x{}_s{}'.format(j, i)]          = {'rtype': float, 'default': 0.}
-        branches_info['gContNHits_x{}_s{}'.format(j, i)]           = {'rtype': int,    'default': 0}
-        branches_info['gContXMean_x{}_s{}'.format(j, i)]           = {'rtype': float, 'default': 0.}
-        branches_info['gContYMean_x{}_s{}'.format(j, i)]           = {'rtype': float, 'default': 0.}
-        branches_info['gContLayerMean_x{}_s{}'.format(j, i)]       = {'rtype': float, 'default': 0.}
-        branches_info['gContXStd_x{}_s{}'.format(j, i)]            = {'rtype': float, 'default': 0.}
-        branches_info['gContYStd_x{}_s{}'.format(j, i)]            = {'rtype': float, 'default': 0.}
-        branches_info['gContLayerStd_x{}_s{}'.format(j, i)]        = {'rtype': float, 'default': 0.}
+        branches_info['gContEnergy_x{}_s{}'.format(j, i)]   = {'rtype': float, 'default': 0.}
+        branches_info['gContNHits_x{}_s{}'.format(j, i)]    = {'rtype': int,    'default': 0}
+        branches_info['gContXMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
+        branches_info['gContYMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
+        branches_info['gContLayerMean_x{}_s{}'.format(j, i) = {'rtype': float, 'default': 0.}
+        branches_info['gContXStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
+        branches_info['gContYStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
+        branches_info['gContLayerStd_x{}_s{}'.format(j, i)] = {'rtype': float, 'default': 0.}
 
         # Outside RoC variables
-        branches_info['oContEnergy_x{}_s{}'.format(j, i)]          = {'rtype': float, 'default': 0.}
-        branches_info['oContNHits_x{}_s{}'.format(j, i)]           = {'rtype': int,    'default': 0}
-        branches_info['oContXMean_x{}_s{}'.format(j, i)]           = {'rtype': float, 'default': 0.}
-        branches_info['oContYMean_x{}_s{}'.format(j, i)]           = {'rtype': float, 'default': 0.}
-        branches_info['oContLayerMean_x{}_s{}'.format(j, i)]       = {'rtype': float, 'default': 0.}
-        branches_info['oContXStd_x{}_s{}'.format(j, i)]            = {'rtype': float, 'default': 0.}
-        branches_info['oContYStd_x{}_s{}'.format(j, i)]            = {'rtype': float, 'default': 0.}
-        branches_info['oContLayerStd_x{}_s{}'.format(j, i)]        = {'rtype': float, 'default': 0.}
+        branches_info['oContEnergy_x{}_s{}'.format(j, i)]   = {'rtype': float, 'default': 0.}
+        branches_info['oContNHits_x{}_s{}'.format(j, i)]    = {'rtype': int,    'default': 0}
+        branches_info['oContXMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
+        branches_info['oContYMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
+        branches_info['oContLayerMean_x{}_s{}'.format(j, i) = {'rtype': float, 'default': 0.}
+        branches_info['oContXStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
+        branches_info['oContYStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
+        branches_info['oContLayerStd_x{}_s{}'.format(j, i)] = {'rtype': float, 'default': 0.}
 
 def main():
 
