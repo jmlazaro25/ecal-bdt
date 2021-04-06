@@ -108,8 +108,8 @@ def dist(p1, p2):
 
 # Distance between a point and the nearest point on a line defined by endpoints
 def distPtToLine(h1,p1,p2):
-    return unit(np.cross((np.array(h1)-np.array(p1)),
-        (np.array(h1)-np.array(p2)))) / unit(np.array(p1)-np.array(p2))
+    return np.linalg.norm(np.cross((np.array(h1)-np.array(p1)),
+        (np.array(h1)-np.array(p2)))) / np.linalg.norm(np.array(p1)-np.array(p2))
 
 # Minimum distance between lines, each line defined by two points
 def distTwoLines(h1,h2,p1,p2):

@@ -205,7 +205,7 @@ def event_process(self):
 
     # Find MIP tracks
     feats['nStraightTracks'], trackingHitList = mipTracking.findStraightTracks(\
-                                trackingHitList, e_traj_ends, e_traj_ends,
+                                trackingHitList, e_traj_ends, g_traj_ends,
                                 mst = 4, returnHitList = True)
     #feats['nLinregTracks'] = mipTracking.nLinregTracks( trackingHitList,
     #                                                    e_traj_ends, e_traj_ends)
