@@ -4,8 +4,8 @@ import ROOT as r
 import numpy as np
 from mods import ROOTmanager as manager
 from mods import physTools, mipTracking
-r.gSystem.Load('/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v2.3.0-w-container/ldmx-sw/install/lib/libEvent.so')
-#r.gSystem.Load('/home/jmlazaro/research/ldmx-sw/install/lib/libEvent.so')
+#r.gSystem.Load('/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v2.3.0-w-container/ldmx-sw/install/lib/libEvent.so')
+r.gSystem.Load('/home/jmlazaro/research/ldmx-sw/install/lib/libEvent.so')
 
 # TreeModel to build here
 branches_info = {
