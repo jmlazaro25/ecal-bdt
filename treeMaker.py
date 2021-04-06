@@ -21,401 +21,57 @@ branches_info = {
         'stdLayerHit':               {'rtype': float, 'default': 0.},
         'deepestLayerHit':           {'rtype': int,   'default': 0 },
         'ecalBackEnergy':            {'rtype': float, 'default': 0.},
-        # Longitudinal segment variables
-        'energy_s1':                 {'rtype': float, 'default': 0.},
-        'energy_s2':                 {'rtype': float, 'default': 0.},
-        'energy_s3':                 {'rtype': float, 'default': 0.},
-        'nHits_s1':                  {'rtype': int, 'default': 0},
-        'nHits_s2':                  {'rtype': int, 'default': 0},
-        'nHits_s3':                  {'rtype': int, 'default': 0},
-        'xMean_s1':                  {'rtype': float, 'default': 0.},
-        'xMean_s2':                  {'rtype': float, 'default': 0.},
-        'xMean_s3':                  {'rtype': float, 'default': 0.},
-        'yMean_s1':                  {'rtype': float, 'default': 0.},
-        'yMean_s2':                  {'rtype': float, 'default': 0.},
-        'yMean_s3':                  {'rtype': float, 'default': 0.},
-        'layerMean_s1':              {'rtype': float, 'default': 0.},
-        'layerMean_s2':              {'rtype': float, 'default': 0.},
-        'layerMean_s3':              {'rtype': float, 'default': 0.},
-        'xStd_s1':                   {'rtype': float, 'default': 0.},
-        'xStd_s2':                   {'rtype': float, 'default': 0.},
-        'xStd_s3':                   {'rtype': float, 'default': 0.},
-        'yStd_s1':                   {'rtype': float, 'default': 0.},
-        'yStd_s2':                   {'rtype': float, 'default': 0.},
-        'yStd_s3':                   {'rtype': float, 'default': 0.},
-        'layerStd_s1':               {'rtype': float, 'default': 0.},
-        'layerStd_s2':               {'rtype': float, 'default': 0.},
-        'layerStd_s3':               {'rtype': float, 'default': 0.},
-        # Electron radius of containment variables
-        'eContEnergy_x1_s1':         {'rtype': float, 'default': 0.},
-        'eContEnergy_x2_s1':         {'rtype': float, 'default': 0.},
-        'eContEnergy_x3_s1':         {'rtype': float, 'default': 0.},
-        'eContEnergy_x4_s1':         {'rtype': float, 'default': 0.},
-        'eContEnergy_x5_s1':         {'rtype': float, 'default': 0.},
-        'eContEnergy_x1_s2':         {'rtype': float, 'default': 0.},
-        'eContEnergy_x2_s2':         {'rtype': float, 'default': 0.},
-        'eContEnergy_x3_s2':         {'rtype': float, 'default': 0.},
-        'eContEnergy_x4_s2':         {'rtype': float, 'default': 0.},
-        'eContEnergy_x5_s2':         {'rtype': float, 'default': 0.},
-        'eContEnergy_x1_s3':         {'rtype': float, 'default': 0.},
-        'eContEnergy_x2_s3':         {'rtype': float, 'default': 0.},
-        'eContEnergy_x3_s3':         {'rtype': float, 'default': 0.},
-        'eContEnergy_x4_s3':         {'rtype': float, 'default': 0.},
-        'eContEnergy_x5_s3':         {'rtype': float, 'default': 0.},
-        'eContNHits_x1_s1':          {'rtype': int, 'default': 0},
-        'eContNHits_x2_s1':          {'rtype': int, 'default': 0},
-        'eContNHits_x3_s1':          {'rtype': int, 'default': 0},
-        'eContNHits_x4_s1':          {'rtype': int, 'default': 0},
-        'eContNHits_x5_s1':          {'rtype': int, 'default': 0},
-        'eContNHits_x1_s2':          {'rtype': int, 'default': 0},
-        'eContNHits_x2_s2':          {'rtype': int, 'default': 0},
-        'eContNHits_x3_s2':          {'rtype': int, 'default': 0},
-        'eContNHits_x4_s2':          {'rtype': int, 'default': 0},
-        'eContNHits_x5_s2':          {'rtype': int, 'default': 0},
-        'eContNHits_x1_s3':          {'rtype': int, 'default': 0},
-        'eContNHits_x2_s3':          {'rtype': int, 'default': 0},
-        'eContNHits_x3_s3':          {'rtype': int, 'default': 0},
-        'eContNHits_x4_s3':          {'rtype': int, 'default': 0},
-        'eContNHits_x5_s3':          {'rtype': int, 'default': 0},
-        'eContXMean_x1_s1':          {'rtype': float, 'default': 0.},
-        'eContXMean_x2_s1':          {'rtype': float, 'default': 0.},
-        'eContXMean_x3_s1':          {'rtype': float, 'default': 0.},
-        'eContXMean_x4_s1':          {'rtype': float, 'default': 0.},
-        'eContXMean_x5_s1':          {'rtype': float, 'default': 0.},
-        'eContXMean_x1_s2':          {'rtype': float, 'default': 0.},
-        'eContXMean_x2_s2':          {'rtype': float, 'default': 0.},
-        'eContXMean_x3_s2':          {'rtype': float, 'default': 0.},
-        'eContXMean_x4_s2':          {'rtype': float, 'default': 0.},
-        'eContXMean_x5_s2':          {'rtype': float, 'default': 0.},
-        'eContXMean_x1_s3':          {'rtype': float, 'default': 0.},
-        'eContXMean_x2_s3':          {'rtype': float, 'default': 0.},
-        'eContXMean_x3_s3':          {'rtype': float, 'default': 0.},
-        'eContXMean_x4_s3':          {'rtype': float, 'default': 0.},
-        'eContXMean_x5_s3':          {'rtype': float, 'default': 0.},
-        'eContYMean_x1_s1':          {'rtype': float, 'default': 0.},
-        'eContYMean_x2_s1':          {'rtype': float, 'default': 0.},
-        'eContYMean_x3_s1':          {'rtype': float, 'default': 0.},
-        'eContYMean_x4_s1':          {'rtype': float, 'default': 0.},
-        'eContYMean_x5_s1':          {'rtype': float, 'default': 0.},
-        'eContYMean_x1_s2':          {'rtype': float, 'default': 0.},
-        'eContYMean_x2_s2':          {'rtype': float, 'default': 0.},
-        'eContYMean_x3_s2':          {'rtype': float, 'default': 0.},
-        'eContYMean_x4_s2':          {'rtype': float, 'default': 0.},
-        'eContYMean_x5_s2':          {'rtype': float, 'default': 0.},
-        'eContYMean_x1_s3':          {'rtype': float, 'default': 0.},
-        'eContYMean_x2_s3':          {'rtype': float, 'default': 0.},
-        'eContYMean_x3_s3':          {'rtype': float, 'default': 0.},
-        'eContYMean_x4_s3':          {'rtype': float, 'default': 0.},
-        'eContYMean_x5_s3':          {'rtype': float, 'default': 0.},
-        'eContLayerMean_x1_s1':      {'rtype': float, 'default': 0.},
-        'eContLayerMean_x2_s1':      {'rtype': float, 'default': 0.},
-        'eContLayerMean_x3_s1':      {'rtype': float, 'default': 0.},
-        'eContLayerMean_x4_s1':      {'rtype': float, 'default': 0.},
-        'eContLayerMean_x5_s1':      {'rtype': float, 'default': 0.},
-        'eContLayerMean_x1_s2':      {'rtype': float, 'default': 0.},
-        'eContLayerMean_x2_s2':      {'rtype': float, 'default': 0.},
-        'eContLayerMean_x3_s2':      {'rtype': float, 'default': 0.},
-        'eContLayerMean_x4_s2':      {'rtype': float, 'default': 0.},
-        'eContLayerMean_x5_s2':      {'rtype': float, 'default': 0.},
-        'eContLayerMean_x1_s3':      {'rtype': float, 'default': 0.},
-        'eContLayerMean_x2_s3':      {'rtype': float, 'default': 0.},
-        'eContLayerMean_x3_s3':      {'rtype': float, 'default': 0.},
-        'eContLayerMean_x4_s3':      {'rtype': float, 'default': 0.},
-        'eContLayerMean_x5_s3':      {'rtype': float, 'default': 0.},
-        'eContXStd_x1_s1':           {'rtype': float, 'default': 0.},
-        'eContXStd_x2_s1':           {'rtype': float, 'default': 0.},
-        'eContXStd_x3_s1':           {'rtype': float, 'default': 0.},
-        'eContXStd_x4_s1':           {'rtype': float, 'default': 0.},
-        'eContXStd_x5_s1':           {'rtype': float, 'default': 0.},
-        'eContXStd_x1_s2':           {'rtype': float, 'default': 0.},
-        'eContXStd_x2_s2':           {'rtype': float, 'default': 0.},
-        'eContXStd_x3_s2':           {'rtype': float, 'default': 0.},
-        'eContXStd_x4_s2':           {'rtype': float, 'default': 0.},
-        'eContXStd_x5_s2':           {'rtype': float, 'default': 0.},
-        'eContXStd_x1_s3':           {'rtype': float, 'default': 0.},
-        'eContXStd_x2_s3':           {'rtype': float, 'default': 0.},
-        'eContXStd_x3_s3':           {'rtype': float, 'default': 0.},
-        'eContXStd_x4_s3':           {'rtype': float, 'default': 0.},
-        'eContXStd_x5_s3':           {'rtype': float, 'default': 0.},
-        'eContYStd_x1_s1':           {'rtype': float, 'default': 0.},
-        'eContYStd_x2_s1':           {'rtype': float, 'default': 0.},
-        'eContYStd_x3_s1':           {'rtype': float, 'default': 0.},
-        'eContYStd_x4_s1':           {'rtype': float, 'default': 0.},
-        'eContYStd_x5_s1':           {'rtype': float, 'default': 0.},
-        'eContYStd_x1_s2':           {'rtype': float, 'default': 0.},
-        'eContYStd_x2_s2':           {'rtype': float, 'default': 0.},
-        'eContYStd_x3_s2':           {'rtype': float, 'default': 0.},
-        'eContYStd_x4_s2':           {'rtype': float, 'default': 0.},
-        'eContYStd_x5_s2':           {'rtype': float, 'default': 0.},
-        'eContYStd_x1_s3':           {'rtype': float, 'default': 0.},
-        'eContYStd_x2_s3':           {'rtype': float, 'default': 0.},
-        'eContYStd_x3_s3':           {'rtype': float, 'default': 0.},
-        'eContYStd_x4_s3':           {'rtype': float, 'default': 0.},
-        'eContYStd_x5_s3':           {'rtype': float, 'default': 0.},
-        'eContLayerStd_x1_s1':       {'rtype': float, 'default': 0.},
-        'eContLayerStd_x2_s1':       {'rtype': float, 'default': 0.},
-        'eContLayerStd_x3_s1':       {'rtype': float, 'default': 0.},
-        'eContLayerStd_x4_s1':       {'rtype': float, 'default': 0.},
-        'eContLayerStd_x5_s1':       {'rtype': float, 'default': 0.},
-        'eContLayerStd_x1_s2':       {'rtype': float, 'default': 0.},
-        'eContLayerStd_x2_s2':       {'rtype': float, 'default': 0.},
-        'eContLayerStd_x3_s2':       {'rtype': float, 'default': 0.},
-        'eContLayerStd_x4_s2':       {'rtype': float, 'default': 0.},
-        'eContLayerStd_x5_s2':       {'rtype': float, 'default': 0.},
-        'eContLayerStd_x1_s3':       {'rtype': float, 'default': 0.},
-        'eContLayerStd_x2_s3':       {'rtype': float, 'default': 0.},
-        'eContLayerStd_x3_s3':       {'rtype': float, 'default': 0.},
-        'eContLayerStd_x4_s3':       {'rtype': float, 'default': 0.},
-        'eContLayerStd_x5_s3':       {'rtype': float, 'default': 0.},
-        # Photon radius of containment variables
-        'gContEnergy_x1_s1':         {'rtype': float, 'default': 0.},
-        'gContEnergy_x2_s1':         {'rtype': float, 'default': 0.},
-        'gContEnergy_x3_s1':         {'rtype': float, 'default': 0.},
-        'gContEnergy_x4_s1':         {'rtype': float, 'default': 0.},
-        'gContEnergy_x5_s1':         {'rtype': float, 'default': 0.},
-        'gContEnergy_x1_s2':         {'rtype': float, 'default': 0.},
-        'gContEnergy_x2_s2':         {'rtype': float, 'default': 0.},
-        'gContEnergy_x3_s2':         {'rtype': float, 'default': 0.},
-        'gContEnergy_x4_s2':         {'rtype': float, 'default': 0.},
-        'gContEnergy_x5_s2':         {'rtype': float, 'default': 0.},
-        'gContEnergy_x1_s3':         {'rtype': float, 'default': 0.},
-        'gContEnergy_x2_s3':         {'rtype': float, 'default': 0.},
-        'gContEnergy_x3_s3':         {'rtype': float, 'default': 0.},
-        'gContEnergy_x4_s3':         {'rtype': float, 'default': 0.},
-        'gContEnergy_x5_s3':         {'rtype': float, 'default': 0.},
-        'gContNHits_x1_s1':          {'rtype': int, 'default': 0},
-        'gContNHits_x2_s1':          {'rtype': int, 'default': 0},
-        'gContNHits_x3_s1':          {'rtype': int, 'default': 0},
-        'gContNHits_x4_s1':          {'rtype': int, 'default': 0},
-        'gContNHits_x5_s1':          {'rtype': int, 'default': 0},
-        'gContNHits_x1_s2':          {'rtype': int, 'default': 0},
-        'gContNHits_x2_s2':          {'rtype': int, 'default': 0},
-        'gContNHits_x3_s2':          {'rtype': int, 'default': 0},
-        'gContNHits_x4_s2':          {'rtype': int, 'default': 0},
-        'gContNHits_x5_s2':          {'rtype': int, 'default': 0},
-        'gContNHits_x1_s3':          {'rtype': int, 'default': 0},
-        'gContNHits_x2_s3':          {'rtype': int, 'default': 0},
-        'gContNHits_x3_s3':          {'rtype': int, 'default': 0},
-        'gContNHits_x4_s3':          {'rtype': int, 'default': 0},
-        'gContNHits_x5_s3':          {'rtype': int, 'default': 0},
-        'gContXMean_x1_s1':          {'rtype': float, 'default': 0.},
-        'gContXMean_x2_s1':          {'rtype': float, 'default': 0.},
-        'gContXMean_x3_s1':          {'rtype': float, 'default': 0.},
-        'gContXMean_x4_s1':          {'rtype': float, 'default': 0.},
-        'gContXMean_x5_s1':          {'rtype': float, 'default': 0.},
-        'gContXMean_x1_s2':          {'rtype': float, 'default': 0.},
-        'gContXMean_x2_s2':          {'rtype': float, 'default': 0.},
-        'gContXMean_x3_s2':          {'rtype': float, 'default': 0.},
-        'gContXMean_x4_s2':          {'rtype': float, 'default': 0.},
-        'gContXMean_x5_s2':          {'rtype': float, 'default': 0.},
-        'gContXMean_x1_s3':          {'rtype': float, 'default': 0.},
-        'gContXMean_x2_s3':          {'rtype': float, 'default': 0.},
-        'gContXMean_x3_s3':          {'rtype': float, 'default': 0.},
-        'gContXMean_x4_s3':          {'rtype': float, 'default': 0.},
-        'gContXMean_x5_s3':          {'rtype': float, 'default': 0.},
-        'gContYMean_x1_s1':          {'rtype': float, 'default': 0.},
-        'gContYMean_x2_s1':          {'rtype': float, 'default': 0.},
-        'gContYMean_x3_s1':          {'rtype': float, 'default': 0.},
-        'gContYMean_x4_s1':          {'rtype': float, 'default': 0.},
-        'gContYMean_x5_s1':          {'rtype': float, 'default': 0.},
-        'gContYMean_x1_s2':          {'rtype': float, 'default': 0.},
-        'gContYMean_x2_s2':          {'rtype': float, 'default': 0.},
-        'gContYMean_x3_s2':          {'rtype': float, 'default': 0.},
-        'gContYMean_x4_s2':          {'rtype': float, 'default': 0.},
-        'gContYMean_x5_s2':          {'rtype': float, 'default': 0.},
-        'gContYMean_x1_s3':          {'rtype': float, 'default': 0.},
-        'gContYMean_x2_s3':          {'rtype': float, 'default': 0.},
-        'gContYMean_x3_s3':          {'rtype': float, 'default': 0.},
-        'gContYMean_x4_s3':          {'rtype': float, 'default': 0.},
-        'gContYMean_x5_s3':          {'rtype': float, 'default': 0.},
-        'gContLayerMean_x1_s1':      {'rtype': float, 'default': 0.},
-        'gContLayerMean_x2_s1':      {'rtype': float, 'default': 0.},
-        'gContLayerMean_x3_s1':      {'rtype': float, 'default': 0.},
-        'gContLayerMean_x4_s1':      {'rtype': float, 'default': 0.},
-        'gContLayerMean_x5_s1':      {'rtype': float, 'default': 0.},
-        'gContLayerMean_x1_s2':      {'rtype': float, 'default': 0.},
-        'gContLayerMean_x2_s2':      {'rtype': float, 'default': 0.},
-        'gContLayerMean_x3_s2':      {'rtype': float, 'default': 0.},
-        'gContLayerMean_x4_s2':      {'rtype': float, 'default': 0.},
-        'gContLayerMean_x5_s2':      {'rtype': float, 'default': 0.},
-        'gContLayerMean_x1_s3':      {'rtype': float, 'default': 0.},
-        'gContLayerMean_x2_s3':      {'rtype': float, 'default': 0.},
-        'gContLayerMean_x3_s3':      {'rtype': float, 'default': 0.},
-        'gContLayerMean_x4_s3':      {'rtype': float, 'default': 0.},
-        'gContLayerMean_x5_s3':      {'rtype': float, 'default': 0.},
-        'gContXStd_x1_s1':           {'rtype': float, 'default': 0.},
-        'gContXStd_x2_s1':           {'rtype': float, 'default': 0.},
-        'gContXStd_x3_s1':           {'rtype': float, 'default': 0.},
-        'gContXStd_x4_s1':           {'rtype': float, 'default': 0.},
-        'gContXStd_x5_s1':           {'rtype': float, 'default': 0.},
-        'gContXStd_x1_s2':           {'rtype': float, 'default': 0.},
-        'gContXStd_x2_s2':           {'rtype': float, 'default': 0.},
-        'gContXStd_x3_s2':           {'rtype': float, 'default': 0.},
-        'gContXStd_x4_s2':           {'rtype': float, 'default': 0.},
-        'gContXStd_x5_s2':           {'rtype': float, 'default': 0.},
-        'gContXStd_x1_s3':           {'rtype': float, 'default': 0.},
-        'gContXStd_x2_s3':           {'rtype': float, 'default': 0.},
-        'gContXStd_x3_s3':           {'rtype': float, 'default': 0.},
-        'gContXStd_x4_s3':           {'rtype': float, 'default': 0.},
-        'gContXStd_x5_s3':           {'rtype': float, 'default': 0.},
-        'gContYStd_x1_s1':           {'rtype': float, 'default': 0.},
-        'gContYStd_x2_s1':           {'rtype': float, 'default': 0.},
-        'gContYStd_x3_s1':           {'rtype': float, 'default': 0.},
-        'gContYStd_x4_s1':           {'rtype': float, 'default': 0.},
-        'gContYStd_x5_s1':           {'rtype': float, 'default': 0.},
-        'gContYStd_x1_s2':           {'rtype': float, 'default': 0.},
-        'gContYStd_x2_s2':           {'rtype': float, 'default': 0.},
-        'gContYStd_x3_s2':           {'rtype': float, 'default': 0.},
-        'gContYStd_x4_s2':           {'rtype': float, 'default': 0.},
-        'gContYStd_x5_s2':           {'rtype': float, 'default': 0.},
-        'gContYStd_x1_s3':           {'rtype': float, 'default': 0.},
-        'gContYStd_x2_s3':           {'rtype': float, 'default': 0.},
-        'gContYStd_x3_s3':           {'rtype': float, 'default': 0.},
-        'gContYStd_x4_s3':           {'rtype': float, 'default': 0.},
-        'gContYStd_x5_s3':           {'rtype': float, 'default': 0.},
-        'gContLayerStd_x1_s1':       {'rtype': float, 'default': 0.},
-        'gContLayerStd_x2_s1':       {'rtype': float, 'default': 0.},
-        'gContLayerStd_x3_s1':       {'rtype': float, 'default': 0.},
-        'gContLayerStd_x4_s1':       {'rtype': float, 'default': 0.},
-        'gContLayerStd_x5_s1':       {'rtype': float, 'default': 0.},
-        'gContLayerStd_x1_s2':       {'rtype': float, 'default': 0.},
-        'gContLayerStd_x2_s2':       {'rtype': float, 'default': 0.},
-        'gContLayerStd_x3_s2':       {'rtype': float, 'default': 0.},
-        'gContLayerStd_x4_s2':       {'rtype': float, 'default': 0.},
-        'gContLayerStd_x5_s2':       {'rtype': float, 'default': 0.},
-        'gContLayerStd_x1_s3':       {'rtype': float, 'default': 0.},
-        'gContLayerStd_x2_s3':       {'rtype': float, 'default': 0.},
-        'gContLayerStd_x3_s3':       {'rtype': float, 'default': 0.},
-        'gContLayerStd_x4_s3':       {'rtype': float, 'default': 0.},
-        'gContLayerStd_x5_s3':       {'rtype': float, 'default': 0.},
-        # Outside radius of containment variables
-        'oContEnergy_x1_s1':         {'rtype': float, 'default': 0.},
-        'oContEnergy_x2_s1':         {'rtype': float, 'default': 0.},
-        'oContEnergy_x3_s1':         {'rtype': float, 'default': 0.},
-        'oContEnergy_x4_s1':         {'rtype': float, 'default': 0.},
-        'oContEnergy_x5_s1':         {'rtype': float, 'default': 0.},
-        'oContEnergy_x1_s2':         {'rtype': float, 'default': 0.},
-        'oContEnergy_x2_s2':         {'rtype': float, 'default': 0.},
-        'oContEnergy_x3_s2':         {'rtype': float, 'default': 0.},
-        'oContEnergy_x4_s2':         {'rtype': float, 'default': 0.},
-        'oContEnergy_x5_s2':         {'rtype': float, 'default': 0.},
-        'oContEnergy_x1_s3':         {'rtype': float, 'default': 0.},
-        'oContEnergy_x2_s3':         {'rtype': float, 'default': 0.},
-        'oContEnergy_x3_s3':         {'rtype': float, 'default': 0.},
-        'oContEnergy_x4_s3':         {'rtype': float, 'default': 0.},
-        'oContEnergy_x5_s3':         {'rtype': float, 'default': 0.},
-        'oContNHits_x1_s1':          {'rtype': int, 'default': 0},
-        'oContNHits_x2_s1':          {'rtype': int, 'default': 0},
-        'oContNHits_x3_s1':          {'rtype': int, 'default': 0},
-        'oContNHits_x4_s1':          {'rtype': int, 'default': 0},
-        'oContNHits_x5_s1':          {'rtype': int, 'default': 0},
-        'oContNHits_x1_s2':          {'rtype': int, 'default': 0},
-        'oContNHits_x2_s2':          {'rtype': int, 'default': 0},
-        'oContNHits_x3_s2':          {'rtype': int, 'default': 0},
-        'oContNHits_x4_s2':          {'rtype': int, 'default': 0},
-        'oContNHits_x5_s2':          {'rtype': int, 'default': 0},
-        'oContNHits_x1_s3':          {'rtype': int, 'default': 0},
-        'oContNHits_x2_s3':          {'rtype': int, 'default': 0},
-        'oContNHits_x3_s3':          {'rtype': int, 'default': 0},
-        'oContNHits_x4_s3':          {'rtype': int, 'default': 0},
-        'oContNHits_x5_s3':          {'rtype': int, 'default': 0},
-        'oContXMean_x1_s1':          {'rtype': float, 'default': 0.},
-        'oContXMean_x2_s1':          {'rtype': float, 'default': 0.},
-        'oContXMean_x3_s1':          {'rtype': float, 'default': 0.},
-        'oContXMean_x4_s1':          {'rtype': float, 'default': 0.},
-        'oContXMean_x5_s1':          {'rtype': float, 'default': 0.},
-        'oContXMean_x1_s2':          {'rtype': float, 'default': 0.},
-        'oContXMean_x2_s2':          {'rtype': float, 'default': 0.},
-        'oContXMean_x3_s2':          {'rtype': float, 'default': 0.},
-        'oContXMean_x4_s2':          {'rtype': float, 'default': 0.},
-        'oContXMean_x5_s2':          {'rtype': float, 'default': 0.},
-        'oContXMean_x1_s3':          {'rtype': float, 'default': 0.},
-        'oContXMean_x2_s3':          {'rtype': float, 'default': 0.},
-        'oContXMean_x3_s3':          {'rtype': float, 'default': 0.},
-        'oContXMean_x4_s3':          {'rtype': float, 'default': 0.},
-        'oContXMean_x5_s3':          {'rtype': float, 'default': 0.},
-        'oContYMean_x1_s1':          {'rtype': float, 'default': 0.},
-        'oContYMean_x2_s1':          {'rtype': float, 'default': 0.},
-        'oContYMean_x3_s1':          {'rtype': float, 'default': 0.},
-        'oContYMean_x4_s1':          {'rtype': float, 'default': 0.},
-        'oContYMean_x5_s1':          {'rtype': float, 'default': 0.},
-        'oContYMean_x1_s2':          {'rtype': float, 'default': 0.},
-        'oContYMean_x2_s2':          {'rtype': float, 'default': 0.},
-        'oContYMean_x3_s2':          {'rtype': float, 'default': 0.},
-        'oContYMean_x4_s2':          {'rtype': float, 'default': 0.},
-        'oContYMean_x5_s2':          {'rtype': float, 'default': 0.},
-        'oContYMean_x1_s3':          {'rtype': float, 'default': 0.},
-        'oContYMean_x2_s3':          {'rtype': float, 'default': 0.},
-        'oContYMean_x3_s3':          {'rtype': float, 'default': 0.},
-        'oContYMean_x4_s3':          {'rtype': float, 'default': 0.},
-        'oContYMean_x5_s3':          {'rtype': float, 'default': 0.},
-        'oContLayerMean_x1_s1':      {'rtype': float, 'default': 0.},
-        'oContLayerMean_x2_s1':      {'rtype': float, 'default': 0.},
-        'oContLayerMean_x3_s1':      {'rtype': float, 'default': 0.},
-        'oContLayerMean_x4_s1':      {'rtype': float, 'default': 0.},
-        'oContLayerMean_x5_s1':      {'rtype': float, 'default': 0.},
-        'oContLayerMean_x1_s2':      {'rtype': float, 'default': 0.},
-        'oContLayerMean_x2_s2':      {'rtype': float, 'default': 0.},
-        'oContLayerMean_x3_s2':      {'rtype': float, 'default': 0.},
-        'oContLayerMean_x4_s2':      {'rtype': float, 'default': 0.},
-        'oContLayerMean_x5_s2':      {'rtype': float, 'default': 0.},
-        'oContLayerMean_x1_s3':      {'rtype': float, 'default': 0.},
-        'oContLayerMean_x2_s3':      {'rtype': float, 'default': 0.},
-        'oContLayerMean_x3_s3':      {'rtype': float, 'default': 0.},
-        'oContLayerMean_x4_s3':      {'rtype': float, 'default': 0.},
-        'oContLayerMean_x5_s3':      {'rtype': float, 'default': 0.},
-        'oContXStd_x1_s1':           {'rtype': float, 'default': 0.},
-        'oContXStd_x2_s1':           {'rtype': float, 'default': 0.},
-        'oContXStd_x3_s1':           {'rtype': float, 'default': 0.},
-        'oContXStd_x4_s1':           {'rtype': float, 'default': 0.},
-        'oContXStd_x5_s1':           {'rtype': float, 'default': 0.},
-        'oContXStd_x1_s2':           {'rtype': float, 'default': 0.},
-        'oContXStd_x2_s2':           {'rtype': float, 'default': 0.},
-        'oContXStd_x3_s2':           {'rtype': float, 'default': 0.},
-        'oContXStd_x4_s2':           {'rtype': float, 'default': 0.},
-        'oContXStd_x5_s2':           {'rtype': float, 'default': 0.},
-        'oContXStd_x1_s3':           {'rtype': float, 'default': 0.},
-        'oContXStd_x2_s3':           {'rtype': float, 'default': 0.},
-        'oContXStd_x3_s3':           {'rtype': float, 'default': 0.},
-        'oContXStd_x4_s3':           {'rtype': float, 'default': 0.},
-        'oContXStd_x5_s3':           {'rtype': float, 'default': 0.},
-        'oContYStd_x1_s1':           {'rtype': float, 'default': 0.},
-        'oContYStd_x2_s1':           {'rtype': float, 'default': 0.},
-        'oContYStd_x3_s1':           {'rtype': float, 'default': 0.},
-        'oContYStd_x4_s1':           {'rtype': float, 'default': 0.},
-        'oContYStd_x5_s1':           {'rtype': float, 'default': 0.},
-        'oContYStd_x1_s2':           {'rtype': float, 'default': 0.},
-        'oContYStd_x2_s2':           {'rtype': float, 'default': 0.},
-        'oContYStd_x3_s2':           {'rtype': float, 'default': 0.},
-        'oContYStd_x4_s2':           {'rtype': float, 'default': 0.},
-        'oContYStd_x5_s2':           {'rtype': float, 'default': 0.},
-        'oContYStd_x1_s3':           {'rtype': float, 'default': 0.},
-        'oContYStd_x2_s3':           {'rtype': float, 'default': 0.},
-        'oContYStd_x3_s3':           {'rtype': float, 'default': 0.},
-        'oContYStd_x4_s3':           {'rtype': float, 'default': 0.},
-        'oContYStd_x5_s3':           {'rtype': float, 'default': 0.},
-        'oContLayerStd_x1_s1':       {'rtype': float, 'default': 0.},
-        'oContLayerStd_x2_s1':       {'rtype': float, 'default': 0.},
-        'oContLayerStd_x3_s1':       {'rtype': float, 'default': 0.},
-        'oContLayerStd_x4_s1':       {'rtype': float, 'default': 0.},
-        'oContLayerStd_x5_s1':       {'rtype': float, 'default': 0.},
-        'oContLayerStd_x1_s2':       {'rtype': float, 'default': 0.},
-        'oContLayerStd_x2_s2':       {'rtype': float, 'default': 0.},
-        'oContLayerStd_x3_s2':       {'rtype': float, 'default': 0.},
-        'oContLayerStd_x4_s2':       {'rtype': float, 'default': 0.},
-        'oContLayerStd_x5_s2':       {'rtype': float, 'default': 0.},
-        'oContLayerStd_x1_s3':       {'rtype': float, 'default': 0.},
-        'oContLayerStd_x2_s3':       {'rtype': float, 'default': 0.},
-        'oContLayerStd_x3_s3':       {'rtype': float, 'default': 0.},
-        'oContLayerStd_x4_s3':       {'rtype': float, 'default': 0.},
-        'oContLayerStd_x5_s3':       {'rtype': float, 'default': 0.},
         # MIP tracking variables
-        'nStraightTracks':           {'rtype': int, 'default': 0},
-        #'nLinregTracks':             {'rtype': int, 'default': 0},
-        'firstNearPhLayer':          {'rtype': int, 'default': 33},
+        'nStraightTracks':           {'rtype': int,    'default': 0},
+        #'nLinregTracks':            {'rtype': int,    'default': 0},
+        'firstNearPhLayer':          {'rtype': int,   'default': 33},
         'epAng':                     {'rtype': float, 'default': 0.},
         'epSep':                     {'rtype': float, 'default': 0.}
         }
+
+for i in range(1, physTools.nSegments + 1):
+
+    # Longitudinal segment variables
+    branches_info['energy_s{}'.format(i)]          = {'rtype': float, 'default': 0.}
+    branches_info['nHits_s{}'.format(i)]           = {'rtype': int,    'default': 0}
+    branches_info['xMean_s{}'.format(i)]           = {'rtype': float, 'default': 0.}
+    branches_info['yMean_s{}'.format(i)]           = {'rtype': float, 'default': 0.}
+    branches_info['layerMean_s{}'.format(i)]       = {'rtype': float, 'default': 0.}
+    branches_info['xStd_s{}'.format(i)]            = {'rtype': float, 'default': 0.}
+    branches_info['yStd_s{}'.format(i)]            = {'rtype': float, 'default': 0.}
+    branches_info['layerStd_s{}'.format(i)]        = {'rtype': float, 'default': 0.}
+
+    for j in range(1, physTools.nRegions + 1):
+
+        # Electron RoC variables
+        branches_info['eContEnergy_x{}_s{}'.format(j, i)]          = {'rtype': float, 'default': 0.}
+        branches_info['eContNHits_x{}_s{}'.format(j, i)]           = {'rtype': int,    'default': 0}
+        branches_info['eContXMean_x{}_s{}'.format(j, i)]           = {'rtype': float, 'default': 0.}
+        branches_info['eContYMean_x{}_s{}'.format(j, i)]           = {'rtype': float, 'default': 0.}
+        branches_info['eContLayerMean_x{}_s{}'.format(j, i)]       = {'rtype': float, 'default': 0.}
+        branches_info['eContXStd_x{}_s{}'.format(j, i)]            = {'rtype': float, 'default': 0.}
+        branches_info['eContYStd_x{}_s{}'.format(j, i)]            = {'rtype': float, 'default': 0.}
+        branches_info['eContLayerStd_x{}_s{}'.format(j, i)]        = {'rtype': float, 'default': 0.}
+
+        # Photon RoC variables
+        branches_info['gContEnergy_x{}_s{}'.format(j, i)]          = {'rtype': float, 'default': 0.}
+        branches_info['gContNHits_x{}_s{}'.format(j, i)]           = {'rtype': int,    'default': 0}
+        branches_info['gContXMean_x{}_s{}'.format(j, i)]           = {'rtype': float, 'default': 0.}
+        branches_info['gContYMean_x{}_s{}'.format(j, i)]           = {'rtype': float, 'default': 0.}
+        branches_info['gContLayerMean_x{}_s{}'.format(j, i)]       = {'rtype': float, 'default': 0.}
+        branches_info['gContXStd_x{}_s{}'.format(j, i)]            = {'rtype': float, 'default': 0.}
+        branches_info['gContYStd_x{}_s{}'.format(j, i)]            = {'rtype': float, 'default': 0.}
+        branches_info['gContLayerStd_x{}_s{}'.format(j, i)]        = {'rtype': float, 'default': 0.}
+
+        # Outside RoC variables
+        branches_info['oContEnergy_x{}_s{}'.format(j, i)]          = {'rtype': float, 'default': 0.}
+        branches_info['oContNHits_x{}_s{}'.format(j, i)]           = {'rtype': int,    'default': 0}
+        branches_info['oContXMean_x{}_s{}'.format(j, i)]           = {'rtype': float, 'default': 0.}
+        branches_info['oContYMean_x{}_s{}'.format(j, i)]           = {'rtype': float, 'default': 0.}
+        branches_info['oContLayerMean_x{}_s{}'.format(j, i)]       = {'rtype': float, 'default': 0.}
+        branches_info['oContXStd_x{}_s{}'.format(j, i)]            = {'rtype': float, 'default': 0.}
+        branches_info['oContYStd_x{}_s{}'.format(j, i)]            = {'rtype': float, 'default': 0.}
+        branches_info['oContLayerStd_x{}_s{}'.format(j, i)]        = {'rtype': float, 'default': 0.}
 
 def main():
 
@@ -544,76 +200,142 @@ def event_process(self):
             else: distance_g_traj = -1.0
 
             # Decide which longitudinal segment the hit is in and add to sums
-            for i in range(0, physTools.nSegments):
-                if (physTools.segLayers[i] <= layer) and (layer <= physTools.segLayers[i + 1] - 1):
-                    feats['energy_s' + str(i + 1)] += hit.getEnergy()
-                    feats['nHits_s' + str(i + 1)] += 1
-                    feats['xMean_s' + str(i + 1)] += xy_pair[0]*hit.getEnergy()
-                    feats['yMean_s' + str(i + 1)] += xy_pair[1]*hit.getEnergy()
-                    feats['layerMean_s' + str(i + 1)] += layer*hit.getEnergy()
+            for i in range(1, physTools.nSegments + 1):
 
-            # Decide which containment region/segment the hit is in and add to sums
-            for i in range(0, physTools.nRegions):
+                if (physTools.segLayers[i - 1] <= layer) and (layer <= physTools.segLayers[i] - 1):
+                    feats['energy_s{}'.format(i)] += hit.getEnergy()
+                    feats['nHits_s{}'.format(i)] += 1
+                    feats['xMean_s{}'.format(i)] += xy_pair[0]*hit.getEnergy()
+                    feats['yMean_s{}'.format(i)] += xy_pair[1]*hit.getEnergy()
+                    feats['layerMean_s{}'.format(i)] += layer*hit.getEnergy()
 
-                if (i*e_radii[layer] <= distance_e_traj) and (distance_e_traj < (i + 1)*e_radii[layer]):
-                    for j in range(0, physTools.nSegments):
-                        if (physTools.segLayers[j] <= layer) and (layer <= physTools.segLayers[j + 1] - 1):
-                            feats['eContEnergy_x' + str(i + 1) + '_s' + str(j + 1)] += hit.getEnergy()
-                            feats['eContNHits_x' + str(i + 1) + '_s' + str(j + 1)] += 1
-                            feats['eContXMean_x' + str(i + 1) + '_s' + str(j + 1)] += xy_pair[0]*hit.getEnergy()
-                            feats['eContYMean_x' + str(i + 1) + '_s' + str(j + 1)] += xy_pair[1]*hit.getEnergy()
-                            feats['eContLayerMean_x' + str(i + 1) + '_s' + str(j + 1)] += layer*hit.getEnergy()
+                    # Decide which containment region the hit is in and add to sums
+                    for j in range(1, physTools.nRegions + 1):
 
-                if (i*g_radii[layer] <= distance_g_traj) and (distance_g_traj < (i + 1)*g_radii[layer]):
-                    for j in range(0, physTools.nSegments):
-                        if (physTools.segLayers[j] <= layer) and (layer <= physTools.segLayers[j + 1] - 1):
-                            feats['gContEnergy_x' + str(i + 1) + '_s' + str(j + 1)] += hit.getEnergy()
-                            feats['gContNHits_x' + str(i + 1) + '_s' + str(j + 1)] += 1
-                            feats['gContXMean_x' + str(i + 1) + '_s' + str(j + 1)] += xy_pair[0]*hit.getEnergy()
-                            feats['gContYMean_x' + str(i + 1) + '_s' + str(j + 1)] += xy_pair[1]*hit.getEnergy()
-                            feats['gContLayerMean_x' + str(i + 1) + '_s' + str(j + 1)] += layer*hit.getEnergy()
+                        if ((j - 1)*e_radii[layer] <= distance_e_traj) and (distance_e_traj < j*e_radii[layer]):
+                            feats['eContEnergy_x{}_s{}'.format(j, i)] += hit.getEnergy()
+                            feats['eContNHits_x{}_s{}'.format(j, i)] += 1
+                            feats['eContXMean_x{}_s{}'.format(j, i)] += xy_pair[0]*hit.getEnergy()
+                            feats['eContYMean_x{}_s{}'.format(j, i)] += xy_pair[1]*hit.getEnergy()
+                            feats['eContLayerMean_x{}_s{}'.format(j, i)] += layer*hit.getEnergy()
 
-                if (distance_e_traj > (i + 1)*e_radii[layer]) and (distance_g_traj > (i + 1)*g_radii[layer]):
-                    for j in range(0, physTools.nSegments):
-                        if (physTools.segLayers[j] <= layer) and (layer <= physTools.segLayers[j + 1] - 1):
-                            feats['oContEnergy_x' + str(i + 1) + '_s' + str(j + 1)] += hit.getEnergy()
-                            feats['oContNHits_x' + str(i + 1) + '_s' + str(j + 1)] += 1
-                            feats['oContXMean_x' + str(i + 1) + '_s' + str(j + 1)] += xy_pair[0]*hit.getEnergy()
-                            feats['oContYMean_x' + str(i + 1) + '_s' + str(j + 1)] += xy_pair[1]*hit.getEnergy()
-                            feats['oContLayerMean_x' + str(i + 1) + '_s' + str(j + 1)] += layer*hit.getEnergy()
+                        if ((j - 1)*g_radii[layer] <= distance_g_traj) and (distance_g_traj < j*g_radii[layer]):
+                            feats['gContEnergy_x{}_s{}'.format(j, i)] += hit.getEnergy()
+                            feats['gContNHits_x{}_s{}'.format(j, i)] += 1
+                            feats['gContXMean_x{}_s{}'.format(j, i)] += xy_pair[0]*hit.getEnergy()
+                            feats['gContYMean_x{}_s{}'.format(j, i)] += xy_pair[1]*hit.getEnergy()
+                            feats['gContLayerMean_x{}_s{}'.format(j, i)] += layer*hit.getEnergy()
+
+                        if (distance_e_traj > j*e_radii[layer]) and (distance_g_traj > j*g_radii[layer]):
+                            feats['oContEnergy_x{}_s{}'.format(j, i)] += hit.getEnergy()
+                            feats['oContNHits_x{}_s{}'.format(j, i)] += 1
+                            feats['oContXMean_x{}_s{}'.format(j, i)] += xy_pair[0]*hit.getEnergy()
+                            feats['oContYMean_x{}_s{}'.format(j, i)] += xy_pair[1]*hit.getEnergy()
+                            feats['oContLayerMean_x{}_s{}'.format(j, i)] += layer*hit.getEnergy()
 
             # Build MIP tracking hit list; (outside electron region or electron missing)
             if distance_e_traj >= e_radii[layer] or distance_e_traj == -1.0:
-                hitData = physTools.HitData()
-                hitData.pos = np.array( [xy_pair[0],xy_pair[1],hit.getZPos() ] )
-                hitData.layer = layer
-                trackingHitList.append(hitData) 
+                trackingHitList.append(hit) 
 
     # If possible, quotient out the total energy from the means
-    for i in range(0, physTools.nSegments):
-        if feats['energy_s' + str(i + 1)] > 0:
-            feats['xMean_s' + str(i + 1)] /= feats['energy_s' + str(i + 1)]
-            feats['yMean_s' + str(i + 1)] /= feats['energy_s' + str(i + 1)]
-            feats['layerMean_s' + str(i + 1)] /= feats['energy_s' + str(i + 1)]
+    for i in range(1, physTools.nSegments + 1):
 
-    for i in range(0, physTools.nRegions):
-        for j in range(0, physTools.nSegments):
+        if feats['energy_s{}'.format(i)] > 0:
+            feats['xMean_s{}'.format(i)] /= feats['energy_s{}'.format(i)]
+            feats['yMean_s{}'.format(i)] /= feats['energy_s{}'.format(i)]
+            feats['layerMean_s{}'.format(i)] /= feats['energy_s{}'.format(i)]
 
-            if feats['eContEnergy_x' + str(i + 1) + '_s' + str(j + 1)] > 0:
-                feats['eContXMean_x' + str(i + 1) + '_s' + str(j + 1)] /= feats['eContEnergy_x' + str(i + 1) + '_s' + str(j + 1)]
-                feats['eContYMean_x' + str(i + 1) + '_s' + str(j + 1)] /= feats['eContEnergy_x' + str(i + 1) + '_s' + str(j + 1)]
-                feats['eContLayerMean_x' + str(i + 1) + '_s' + str(j + 1)] /= feats['eContEnergy_x' + str(i + 1) + '_s' + str(j + 1)]
+        for j in range(1, physTools.nRegions + 1):
 
-            if feats['gContEnergy_x' + str(i + 1) + '_s' + str(j + 1)] > 0:
-                feats['gContXMean_x' + str(i + 1) + '_s' + str(j + 1)] /= feats['gContEnergy_x' + str(i + 1) + '_s' + str(j + 1)]
-                feats['gContYMean_x' + str(i + 1) + '_s' + str(j + 1)] /= feats['gContEnergy_x' + str(i + 1) + '_s' + str(j + 1)]
-                feats['gContLayerMean_x' + str(i + 1) + '_s' + str(j + 1)] /= feats['gContEnergy_x' + str(i + 1) + '_s' + str(j + 1)]
+            if feats['eContEnergy_x{}_s{}'.format(j, i)] > 0:
+                feats['eContXMean_x{}_s{}'.format(j, i)] /= feats['eContEnergy_x{}_s{}'.format(j, i)]
+                feats['eContYMean_x{}_s{}'.format(j, i)] /= feats['eContEnergy_x{}_s{}'.format(j, i)]
+                feats['eContLayerMean_x{}_s{}'.format(j, i)] /= feats['eContEnergy_x{}_s{}'.format(j, i)]
 
-            if feats['oContEnergy_x' + str(i + 1) + '_s' + str(j + 1)] > 0:
-                feats['oContXMean_x' + str(i + 1) + '_s' + str(j + 1)] /= feats['oContEnergy_x' + str(i + 1) + '_s' + str(j + 1)]
-                feats['oContYMean_x' + str(i + 1) + '_s' + str(j + 1)] /= feats['oContEnergy_x' + str(i + 1) + '_s' + str(j + 1)]
-                feats['oContLayerMean_x' + str(i + 1) + '_s' + str(j + 1)] /= feats['oContEnergy_x' + str(i + 1) + '_s' + str(j + 1)]
-    
+            if feats['gContEnergy_x{}_s{}'.format(j, i)] > 0:
+                feats['gContXMean_x{}_s{}'.format(j, i)] /= feats['gContEnergy_x{}_s{}'.format(j, i)]
+                feats['gContYMean_x{}_s{}'.format(j, i)] /= feats['gContEnergy_x{}_s{}'.format(j, i)]
+                feats['gContLayerMean_x{}_s{}'.format(j, i)] /= feats['gContEnergy_x{}_s{}'.format(j, i)]
+
+            if feats['oContEnergy_x{}_s{}'.format(j, i)] > 0:
+                feats['oContXMean_x{}_s{}'.format(j, i)] /= feats['oContEnergy_x{}_s{}'.format(j, i)]
+                feats['oContYMean_x{}_s{}'.format(j, i)] /= feats['oContEnergy_x{}_s{}'.format(j, i)]
+                feats['oContLayerMean_x{}_s{}'.format(j, i)] /= feats['oContEnergy_x{}_s{}'.format(j, i)]
+
+    # Loop over hits again to calculate the standard deviations
+    for hit in self.ecalRecHits:
+
+        layer = physTools.layerIDofHit(hit)
+        xy_pair = (hit.getXPos(), hit.getYPos())
+
+        # Distance to electron trajectory
+        if e_traj != None:
+            xy_e_traj = (e_traj[layer][0], e_traj[layer][1])
+            distance_e_traj = physTools.dist(xy_pair, xy_e_traj)
+        else:
+            distance_e_traj = -1.0
+
+        # Distance to photon trajectory
+        if g_traj != None:
+            xy_g_traj = (g_traj[layer][0], g_traj[layer][1])
+            distance_g_traj = physTools.dist(xy_pair, xy_g_traj)
+        else:
+            distance_g_traj = -1.0
+
+        # Decide which longitudinal segment the hit is in and add to sums
+        for i in range(1, physTools.nSegments + 1):
+
+            if (physTools.segLayers[i - 1] <= layer) and (layer <= physTools.segLayers[i] - 1):
+                feats['xStd_s{}'.format(i)] += ((xy_pair[0] - feats['xMean_s{}'.format(i)])**2)*hit.getEnergy()
+                feats['yStd_s{}'.format(i)] += ((xy_pair[1] - feats['yMean_s{}'.format(i)])**2)*hit.getEnergy()
+                feats['layerStd_s{}'.format(i)] += ((layer - feats['layerMean_s{}'.format(i)])**2)*hit.getEnergy()
+
+                # Decide which containment region the hit is in and add to sums
+                for j in range(1, physTools.nRegions + 1):
+
+                    if ((j - 1)*e_radii[layer] <= distance_e_traj) and (distance_e_traj < j*e_radii[layer]):
+                        feats['eContXStd_x{}_s{}'.format(j, i)] += ((xy_pair[0] - feats['eContXMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
+                        feats['eContYStd_x{}_s{}'.format(j, i)] += ((xy_pair[1] - feats['eContYMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
+                        feats['eContLayerStd_x{}_s{}'.format(j, i)] += ((layer - feats['eContLayerMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
+
+                    if ((j - 1)*g_radii[layer] <= distance_g_traj) and (distance_g_traj < j*g_radii[layer]):
+                        feats['gContXStd_x{}_s{}'.format(j, i)] += ((xy_pair[0] - feats['gContXMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
+                        feats['gContYStd_x{}_s{}'.format(j, i)] += ((xy_pair[1] - feats['gContYMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
+                        feats['gContLayerStd_x{}_s{}'.format(j, i)] += ((layer - feats['gContLayerMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
+
+                    if (distance_e_traj > j*e_radii[layer]) and (distance_g_traj > j*g_radii[layer]):
+                        feats['oContXStd_x{}_s{}'.format(j, i)] += ((xy_pair[0] - feats['oContXMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
+                        feats['oContYStd_x{}_s{}'.format(j, i)] += ((xy_pair[1] - feats['oContYMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
+                        feats['oContLayerStd_x{}_s{}'.format(j, i)] += ((layer - feats['oContLayerMean_x{}_s{}'.format(j, i)])**2)*hit.getEnergy()
+
+    # Quotient out the total energies from the standard deviations if possible and take the square root
+    for i in range(1, physTools.nSegments + 1):
+
+        if feats['energy_s{}'.format(i)] > 0:
+            feats['xStd_s{}'.format(i)] = math.sqrt(feats['xStd_s{}'.format(i)]/feats['energy_s{}'.format(i)])
+            feats['yStd_s{}'.format(i)] = math.sqrt(feats['yStd_s{}'.format(i)]/feats['energy_s{}'.format(i)])
+            feats['layerStd_s{}'.format(i)] = math.sqrt(feats['layerStd_s{}'.format(i)]/feats['energy_s{}'.format(i)])
+
+        for j in range(1, physTools.nSegments + 1):
+
+            if feats['eContEnergy_x{}_s{}'.format(j, i)] > 0:
+                feats['eContXStd_x{}_s{}'.format(j, i)] = math.sqrt(feats['eContXStd_x{}_s{}'.format(j, i)]/feats['eContEnergy_x{}_s{}'.format(j, i)])
+                feats['eContYStd_x{}_s{}'.format(j, i)] = math.sqrt(feats['eContYStd_x{}_s{}'.format(j, i)]/feats['eContEnergy_x{}_s{}'.format(j, i)])
+                feats['eContLayerStd_x{}_s{}'.format(j, i)] = math.sqrt(feats['eContLayerStd_x{}_s{}'.format(j, i)]
+                                                              /feats['eContEnergy_x{}_s{}'.format(j, i)])
+
+            if feats['gContEnergy_x{}_s{}'.format(j, i)] > 0:
+                feats['gContXStd_x{}_s{}'.format(j, i)] = math.sqrt(feats['gContXStd_x{}_s{}'.format(j, i)]/feats['gContEnergy_x{}_s{}'.format(j, i)])
+                feats['gContYStd_x{}_s{}'.format(j, i)] = math.sqrt(feats['gContYStd_x{}_s{}'.format(j, i)]/feats['gContEnergy_x{}_s{}'.format(j, i)])
+                feats['gContLayerStd_x{}_s{}'.format(j, i)] = math.sqrt(feats['gContLayerStd_x{}_s{}'.format(j, i)]
+                                                              /feats['gContEnergy_x{}_s{}'.format(j, i)])
+
+            if feats['oContEnergy_x{}_s{}'.format(j, i)] > 0:
+                feats['oContXStd_x{}_s{}'.format(j, i)] = math.sqrt(feats['oContXStd_x{}_s{}'.format(j, i)]/feats['oContEnergy_x{}_s{}'.format(j, i)])
+                feats['oContYStd_x{}_s{}'.format(j, i)] = math.sqrt(feats['oContYStd_x{}_s{}'.format(j, i)]/feats['oContEnergy_x{}_s{}'.format(j, i)])
+                feats['oContLayerStd_x{}_s{}'.format(j, i)] = math.sqrt(feats['oContLayerStd_x{}_s{}'.format(j, i)]
+                                                              /feats['oContEnergy_x{}_s{}'.format(j, i)])
+
     # MIP tracking starts here
 
     # Goal: Calculate 
@@ -655,11 +377,12 @@ def event_process(self):
         feats['firstNearPhLayer'] = mipTracking.firstNearPhLayer( trackingHitList, g_traj )
 
     # Order hits by zpos for efficiency
-    trackingHitList.sort(key=lambda hd: hd.layer, reverse=True)
+    trackingHitList.sort(key=lambda hd: hd.getZPos(), reverse=True)
 
     # Find MIP tracks
-    feats['nStraightTracks'], trackingHitList = mipTracking.nStraightTracks(trackingHitList,
-                                                        e_traj_ends, e_traj_ends)
+    feats['nStraightTracks'], trackingHitList = mipTracking.findStraightTracks(\
+                                trackingHitList, e_traj_ends, e_traj_ends,
+                                mst = 4, returnHitList = True)
     #feats['nLinregTracks'] = mipTracking.nLinregTracks( trackingHitList,
     #                                                    e_traj_ends, e_traj_ends)
 
