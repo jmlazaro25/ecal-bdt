@@ -226,5 +226,3 @@ def elec_gamma_ecalSPHits(ecalSPHits):
 
     return eSPHit, gSPHit
 
-
-     

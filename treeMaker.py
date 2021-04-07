@@ -22,11 +22,17 @@ branches_info = {
         'deepestLayerHit':           {'rtype': int,   'default': 0 },
         'ecalBackEnergy':            {'rtype': float, 'default': 0.},
         # MIP tracking variables
-        'nStraightTracks':           {'rtype': int,    'default': 0},
-        #'nLinregTracks':            {'rtype': int,    'default': 0},
+        'straight4':                 {'rtype': int,   'default': 0 },
         'firstNearPhLayer':          {'rtype': int,   'default': 33},
-        'epAng':                     {'rtype': float, 'default': 0.},
-        'epSep':                     {'rtype': float, 'default': 0.}
+        'nNearPhHits':               {'rtype': int,   'default': 0 },
+        'fullElectronTerritoryHits': {'rtype': int,   'default': 0 },
+        'fullPhotonTerritoryHits':   {'rtype': int,   'default': 0 },
+        'fullTerritoryRatio':        {'rtype': float, 'default': 1.},
+        'electronTerritoryHits':     {'rtype': int,   'default': 0 },
+        'photonTerritoryHits':       {'rtype': int,   'default': 0 },
+        'TerritoryRatio':            {'rtype': float, 'default': 1.},
+        #'epSep':                   {'rtype': float, 'default': 0.}
+        #'epDot':                   {'rtype': float, 'default': 0.},
         }
 
 for i in range(1, physTools.nSegments + 1):
@@ -48,7 +54,7 @@ for i in range(1, physTools.nSegments + 1):
         branches_info['eContNHits_x{}_s{}'.format(j, i)]    = {'rtype': int,    'default': 0}
         branches_info['eContXMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
         branches_info['eContYMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
-        branches_info['eContLayerMean_x{}_s{}'.format(j, i) = {'rtype': float, 'default': 0.}
+        branches_info['eContLayerMean_x{}_s{}'.format(j, i)]= {'rtype': float, 'default': 0.}
         branches_info['eContXStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
         branches_info['eContYStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
         branches_info['eContLayerStd_x{}_s{}'.format(j, i)] = {'rtype': float, 'default': 0.}
@@ -58,17 +64,17 @@ for i in range(1, physTools.nSegments + 1):
         branches_info['gContNHits_x{}_s{}'.format(j, i)]    = {'rtype': int,    'default': 0}
         branches_info['gContXMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
         branches_info['gContYMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
-        branches_info['gContLayerMean_x{}_s{}'.format(j, i) = {'rtype': float, 'default': 0.}
+        branches_info['gContLayerMean_x{}_s{}'.format(j, i)]= {'rtype': float, 'default': 0.}
         branches_info['gContXStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
         branches_info['gContYStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
         branches_info['gContLayerStd_x{}_s{}'.format(j, i)] = {'rtype': float, 'default': 0.}
 
         # Outside RoC variables
         branches_info['oContEnergy_x{}_s{}'.format(j, i)]   = {'rtype': float, 'default': 0.}
-        branches_info['oContNHits_x{}_s{}'.format(j, i)]    = {'rtype': int,    'default': 0}
+        branches_info['oContNHits_x{}_s{}'.format(j, i)]    = {'rtype': int,   'default':  0}
         branches_info['oContXMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
         branches_info['oContYMean_x{}_s{}'.format(j, i)]    = {'rtype': float, 'default': 0.}
-        branches_info['oContLayerMean_x{}_s{}'.format(j, i) = {'rtype': float, 'default': 0.}
+        branches_info['oContLayerMean_x{}_s{}'.format(j, i)]= {'rtype': float, 'default': 0.}
         branches_info['oContXStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
         branches_info['oContYStd_x{}_s{}'.format(j, i)]     = {'rtype': float, 'default': 0.}
         branches_info['oContLayerStd_x{}_s{}'.format(j, i)] = {'rtype': float, 'default': 0.}
@@ -143,14 +149,11 @@ def event_process(self):
     # Get e position and momentum, and make note of presence
     e_ecalHit = physTools.electronEcalSPHit(self.ecalSPHits)
     if e_ecalHit != None:
-        e_present = True
         e_ecalPos, e_ecalP = e_ecalHit.getPosition(), e_ecalHit.getMomentum()
-    else:
-        e_present = False
 
     # Get electron and photon trajectories
     e_traj = g_traj = None
-    if e_present:
+    if e_ecalHit != None:
 
         # Photon Info from target
         e_targetHit = physTools.electronTargetSPHit(self.targetSPHits)
@@ -163,9 +166,39 @@ def event_process(self):
         e_traj = physTools.layerIntercepts(e_ecalPos, e_ecalP)
         g_traj = physTools.layerIntercepts(g_targPos, g_targP)
 
+    # Find epSep and epDot, and prepare electron and photon trajectory vectors
+    if e_traj != None and g_traj != None:
+
+        # Create arrays marking start and end of each trajectory
+        e_traj_ends = [np.array([e_traj[0][0], e_traj[0][1], physTools.ecal_layerZs[0]    ]),
+                       np.array([e_traj[-1][0], e_traj[-1][1], physTools.ecal_layerZs[-1] ])]
+        g_traj_ends = [np.array([g_traj[0][0], g_traj[0][1], physTools.ecal_layerZs[0]    ]),
+                       np.array([g_traj[-1][0], g_traj[-1][1], physTools.ecal_layerZs[-1] ])]
+
+        # Unused epDot and epSep
+        #feats['epSep'] = physTools.dist( e_traj_ends[0], g_traj_ends[0] )
+        #feats['epDot'] = physTools.dot(e_norm,g_norm)
+
+    else:
+
+        # Electron trajectory is missing so all hits in Ecal are okay to use
+        # Pick trajectories so they won'trestrict tracking, far outside the Ecal
+
+        e_traj_ends   = [np.array([999 ,999 ,0   ]), np.array([999 ,999 ,999 ]) ]
+        g_traj_ends   = [np.array([1000,1000,0   ]), np.array([1000,1000,1000]) ]
+
+        #feats['epSep'] = 10.0 + 1.0 # Don't cut on these in this case
+        #feats['epDot'] = 3.0 + 1.0
+
+    # Territory setup (consider missing case)
+    gToe    = physTools.unit( e_traj_ends[0] - g_traj_ends[0] )
+    origin  = g_traj_ends[0] + 0.5*8.7*gToe
+    e_norm  = physTools.unit( e_traj_ends[1] - e_traj_ends[0] )
+    g_norm  = physTools.unit( g_traj_ends[1] - g_traj_ends[0] )
+
     # Recoil electron momentum magnitude and angle with z-axis
-    recoilPMag = physTools.mag(  e_ecalP ) if e_present      else -1.0
-    recoilTheta =    physTools.angle(e_ecalP, units='radians') if recoilPMag > 0 else -1.0
+    recoilPMag  = physTools.mag(  e_ecalP )                 if e_ecalHit != None else -1.0
+    recoilTheta = physTools.angle(e_ecalP, units='radians') if recoilPMag > 0    else -1.0
 
     # Set electron RoC binnings
     e_radii = physTools.radius68_thetalt10_plt500
@@ -186,6 +219,11 @@ def event_process(self):
 
             layer = physTools.layerIDofHit(hit)
             xy_pair = ( hit.getXPos(), hit.getYPos() )
+
+            # Territory selections
+            hitPrime = physTools.pos(hit) - origin
+            if np.dot(hitPrime, gToe) > 0: feats['fullElectronTerritoryHits'] += 1
+            else: feats['fullPhotonTerritoryHits'] += 1
 
             # Distance to electron trajectory
             if e_traj != None:
@@ -336,55 +374,39 @@ def event_process(self):
                 feats['oContLayerStd_x{}_s{}'.format(j, i)] = math.sqrt(feats['oContLayerStd_x{}_s{}'.format(j, i)]
                                                               /feats['oContEnergy_x{}_s{}'.format(j, i)])
 
-    # MIP tracking starts here
 
-    # Goal: Calculate 
-    # nStraightTracks (Self-explanatory) 
-    # nLinregTracks (Tracks found by linreg algorithm)
-
-    # Find epAng and epSep, and prepare EP trajectory vectors
-    if e_traj != None and g_traj != None:
-
-        # Create arrays marking start and end of each trajectory
-        e_traj_ends = [np.array([e_traj[0][0], e_traj[0][1], physTools.ecal_layerZs[0]    ]),
-                       np.array([e_traj[-1][0], e_traj[-1][1], physTools.ecal_layerZs[-1] ])]
-        g_traj_ends = [np.array([g_traj[0][0], g_traj[0][1], physTools.ecal_layerZs[0]    ]),
-                       np.array([g_traj[-1][0], g_traj[-1][1], physTools.ecal_layerZs[-1] ])]
-
-        evec   = e_traj_ends[1] - e_traj_ends[0]
-        gvec   = g_traj_ends[1] - g_traj_ends[0]
-        e_norm = physTools.unit(evec)
-        g_norm = physTools.unit(gvec)
-
-        # Unused epAng and epSep ??? And why Ang instead of dot ???
-        feats['epAng'] = epAng = math.acos( physTools.dot(e_norm,g_norm) )*180.0/math.pi
-        feats['epSep'] = epSep = physTools.dist( e_traj_ends[0], g_traj_ends[0] )
-
-    else:
-
-        # Electron trajectory is missing so all hits in Ecal are okay to use
-        # Pick trajectories so they won'trestrict tracking, far outside the Ecal
-
-        e_traj_ends   = [np.array([999 ,999 ,0   ]), np.array([999 ,999 ,999 ]) ]
-        g_traj_ends   = [np.array([1000,1000,0   ]), np.array([1000,1000,1000]) ]
-        feats['epAng'] = epAng = 3.0 + 1.0 # Don't cut on these in this case
-        feats['epSep'] = epSep = 10.0 + 1.0
-
-    # Near photon step: Find the first layer of the ECal where a hit near the projected
-    # photon trajectory is found
-    # Currently unusued pending further study; performance has dropped between v9 and v12
+    # Find the first layer of the ECal where a hit near the projected photon trajectory
+    # AND the total number of hits around the photon trajectory
     if g_traj != None: # If no photon trajectory, leave this at the default
-        feats['firstNearPhLayer'] = mipTracking.firstNearPhLayer( trackingHitList, g_traj )
 
-    # Order hits by zpos for efficiency
-    trackingHitList.sort(key=lambda hd: hd.getZPos(), reverse=True)
+        # First currently unusued; pending further study; performance drop from  v9 and v12
+        #print(trackingHitList, g_traj)
+        feats['firstNearPhLayer'], feats['nNearPhHits'] = mipTracking.nearPhotonInfo(
+                                                            trackingHitList, g_traj )
+    else: feats['nNearPhHits'] = feats['nReadoutHits']
+
+
+    # Territories limited to trackingHitList
+    if e_traj != None:
+        for hit in trackingHitList:
+            hitPrime = physTools.pos(hit) - origin
+            if np.dot(hitPrime, gToe) > 0: feats['electronTerritoryHits'] += 1
+            else: feats['photonTerritoryHits'] += 1
+    else:
+        feats['photonTerritoryHits'] = feats['nReadoutHits']
+        feats['TerritoryRatio'] = 10
+        feats['TerritoryRatio'] = 10
+    if feats['electronTerritoryHits'] != 0:
+        feats['TerritoryRatio'] = feats['photonTerritoryHits']/feats['electronTerritoryHits']
+    if feats['fullElectronTerritoryHits'] != 0:
+        feats['fullTerritoryRatio'] = feats['fullPhotonTerritoryHits']/\
+                                            feats['fullElectronTerritoryHits']
+
 
     # Find MIP tracks
-    feats['nStraightTracks'], trackingHitList = mipTracking.findStraightTracks(\
+    feats['straight4'], trackingHitList = mipTracking.findStraightTracks(
                                 trackingHitList, e_traj_ends, g_traj_ends,
                                 mst = 4, returnHitList = True)
-    #feats['nLinregTracks'] = mipTracking.nLinregTracks( trackingHitList,
-    #                                                    e_traj_ends, e_traj_ends)
 
     # Fill the tree with values for this event
     self.tfMaker.fillEvent(feats)

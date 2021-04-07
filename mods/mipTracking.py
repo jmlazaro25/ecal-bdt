@@ -6,19 +6,31 @@ from mods import physTools
 # NOTE: Don't forget to order hits by reverse zpos before using the nXTracks funcs
 # This is assumed to make use of some algorithm short cuts
 
-# First layer with hit within one cell of the photon trajectory
-def firstNearPhLayer(trackingHitList,g_trajectory):
+##########################
+# First layer with hit within one cell of the photon trajectory AND
+# Number of hits within one cell of the photon trajectory
+##########################
+def nearPhotonInfo(trackingHitList, g_trajectory, returnLayer=True, returnNumber=True):
 
     layer = 33
+    n = 0
     for hit in trackingHitList:
-        #print(type(),type(),type())
-        if physTools.layerofHitZ( hit.getZPos() ) < layer and\
-                physTools.dist( physTools.pos(hit)[:2],
-                                g_trajectory[ physTools.layerofHitZ( hit.getZPos() ) ] )\
-                < physTools.cellWidth:
-            layer = physTools.layerofHitZ( hit.getZPos() )
 
-    return layer
+        # Near the photn trajectory
+        if physTools.dist( physTools.pos(hit)[:2],
+                g_trajectory[ physTools.layerIDofHit( hit ) ] ) < physTools.cellWidth:
+            n += 1
+
+            # Earliest layer
+            if physTools.layerIDofHit( hit ) < layer:
+                layer = physTools.layerIDofHit( hit )
+
+    # Prepare and return desired output
+    out = []
+    if returnLayer: out.append(layer)
+    if returnNumber: out.append(n)
+
+    return out
 
 ##########################
 # Straight tracks
