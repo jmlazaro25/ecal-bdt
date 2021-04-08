@@ -451,7 +451,7 @@ def event_process(self):
     else:
         feats['photonTerritoryHits'] = feats['nReadoutHits']
         feats['TerritoryRatio'] = 10
-        feats['TerritoryRatio'] = 10
+        feats['fullTerritoryRatio'] = 10
     if feats['electronTerritoryHits'] != 0:
         feats['TerritoryRatio'] = feats['photonTerritoryHits']/feats['electronTerritoryHits']
     if feats['fullElectronTerritoryHits'] != 0:
