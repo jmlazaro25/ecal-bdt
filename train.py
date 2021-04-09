@@ -5,8 +5,8 @@ import argparse
 # Parse
 parser = argparse.ArgumentParser(f'ldmx python3 {sys.argv[0]}', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-parser.add_argument('-b',metavar='BKGD_FILE',dest='bkg_files',nargs='+',required=True,help='Path to background file')
-parser.add_argument('-s',metavar='SIGN_FILE',dest='sig_files',nargs='+',required=True,help='Path to signal file')
+parser.add_argument('-b',metavar='BKGD_SAMPLE',dest='bkg_files',nargs='+',required=True,help='Path to background file')
+parser.add_argument('-s',metavar='SIGN_SAMPLE',dest='sig_files',nargs='+',required=True,help='Path to signal file')
 parser.add_argument('-o',metavar='OUT_NAME',dest='out_name',required=True,help='Output name of trained BDT')
 
 parser.add_argument('--seed', dest='seed',type=int,default=2,help='Numpy random seed.')
@@ -32,11 +32,11 @@ print(f'You set eta = {arg.eta}' )
 
 # Make Signal Container
 print('Loading signal files...')
-sig_sample = bdt.SampleContainer(arg.sig_files)
+sig_sample = bdt.SampleContainer(bdt.smart_recursive_input(arg.sig_files))
 
 # Make Background Container
 print('Loading bkgd files...')
-bkg_sample = bdt.SampleContainer(arg.bkg_files)
+bkg_sample = bdt.SampleContainer(bdt.smart_recursive_input(arg.bkg_files))
 
 print('Constructing trainer and translating ROOT objects...')
 t = bdt.Trainer(sig_sample,bkg_sample,arg.max_evt)

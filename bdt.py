@@ -48,7 +48,10 @@ class SampleContainer:
         # reading or writing
     
         self.veto = ROOT.ldmx.EcalVetoResult()
-        self.__attach__(self.veto,'EcalVeto')
+        try :
+            self.__attach__(self.veto,'EcalVeto','veto')
+        except :
+            self.__attach__(self.veto,'EcalVeto')
 
     def __attach__(self,obj,coll_name,pass_name='') :
         
