@@ -32,6 +32,34 @@ def smart_recursive_input(file_or_dir) :
     #file or directory
     return full_list
 
+class HistogramPool() :
+    def __init__(self, out_name, root_dir) :
+        self.category = 'nuc'
+        self.weight   = 1.
+        self.f = ROOT.TFile.Open(out_name,'RECREATE')
+        self.root_d = self.f.mkdir(root_dir)
+
+    def save(self) :
+        self.f.Write()
+        self.f.Close()
+
+    def new_category(self, cat) :
+        d = self.root_d.mkdir(cat)
+        d.cd()
+        self.category = cat
+
+    def __full_name__(self, name) :
+        if name == 'category' or name == 'weight' or name == 'f' or name == 'root_d' :
+            return name
+        else :
+            return f'{name}_{self.__dict__["category"]}'
+
+    def __getattr__(self, hist_name) :
+        return self.__dict__[self.__full_name__(hist_name)]
+
+    def __setattr__(self, hist_name, hist) :
+        super().__setattr__(self.__full_name__(hist_name), hist)
+
 class SampleContainer:
     def __init__(self, file_paths, tree_to_clone=None):
         if tree_to_clone is None :
@@ -49,7 +77,7 @@ class SampleContainer:
     
         self.veto = ROOT.ldmx.EcalVetoResult()
         try :
-            self.__attach__(self.veto,'EcalVeto','veto')
+            self.__attach__(self.veto,'EcalVeto','anaeat')
         except :
             self.__attach__(self.veto,'EcalVeto')
 
