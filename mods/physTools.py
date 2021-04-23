@@ -1,8 +1,8 @@
 import math
 import numpy as np
-# all space values in mm unless otherwise noted
+# All space values in mm unless otherwise noted
 
-#gdml values
+# Gdml values
 ecal_front_z = 240.5
 sp_thickness = 0.001
 clearance = 0.001
@@ -11,9 +11,10 @@ ecal_envelope_z = ECal_dz + 1
 sp_ecal_front_z = ecal_front_z + (ecal_envelope_z - ECal_dz)/2 - sp_thickness/2 + clearance
 
 sin60 = np.sin(np.radians(60))
-module_radius = 85. # dist form center to midpoint of side
+module_radius = 85. # Dist form center to midpoint of side
+cell_radius = 5 # Real circle
 module_side = module_radius/sin60
-module_gap = 1.5 # space between sides of side-by-side mods
+module_gap = 1.5 # Space between sides of side-by-side mods
 
 cellWidth = 8.7
 
@@ -115,8 +116,7 @@ def dot(i1, i2):
 
 # Distance detween points
 def dist(p1, p2):
-    p1, p2 = np.array(p1), np.array(p2)
-    return mag(p1 - p2)
+    return math.sqrt(np.sum( ( np.array(p1) - np.array(p2) )**2 ))
 
 # Distance between a point and the nearest point on a line defined by endpoints
 def distPtToLine(h1,p1,p2):
