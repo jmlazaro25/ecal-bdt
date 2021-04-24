@@ -19,6 +19,8 @@ cellWidth = 8.7
 
 # Hcal
 # Layer 1 has no absorber, layers 2 and 3 have absorber of different thickness
+air_thick = 2
+scint_thick = 20
 hcal_back_dx = 3100
 hcal_back_dy = 3100   
 back_numLayers1 = 0        
