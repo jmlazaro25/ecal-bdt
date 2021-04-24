@@ -12,11 +12,37 @@ sp_ecal_front_z = ecal_front_z + (ecal_envelope_z - ECal_dz)/2 - sp_thickness/2 
 
 sin60 = np.sin(np.radians(60))
 module_radius = 85. # Dist form center to midpoint of side
-cell_radius = 5 # Real circle
 module_side = module_radius/sin60
 module_gap = 1.5 # Space between sides of side-by-side mods
-
+cell_radius = 5 # Real circle
 cellWidth = 8.7
+
+# Hcal
+# Layer 1 has no absorber, layers 2 and 3 have absorber of different thickness
+hcal_back_dx = 3100
+hcal_back_dy = 3100   
+back_numLayers1 = 0        
+back_numLayers2 = 100        
+back_numLayers3 = 0        
+back_abso2_thick = 25
+back_abso3_thick = 50
+back_layer1_thick = scint_thick + air_thick
+back_layer2_thick = back_abso2_thick + scint_thick + 2.0*air_thick
+back_layer3_thick = back_abso3_thick + scint_thick + 2.0*air_thick
+hcal_back_dz1 = back_numLayers1*back_layer1_thick
+hcal_back_dz2 = back_numLayers2*back_layer2_thick
+hcal_back_dz3 = back_numLayers3*back_layer3_thick
+hcal_back_dz = hcal_back_dz1 + hcal_back_dz2 + hcal_back_dz3
+
+# Side HCal Layer component
+sideTB_layers = 28
+sideLR_layers = 26
+side_abso_thick = 20
+hcal_side_dz = 600
+
+# Macro
+back_start_z = 860.5 # ecal_front_z + hcal_side_dz + 20
+hcal_dz = hcal_back_dz + hcal_side_dz
 
 ecal_layerZs = ecal_front_z + np.array([7.850,   13.300,  26.400,  33.500,  47.950,
                                         56.550,  72.250,  81.350,  97.050,  106.150,
@@ -173,7 +199,7 @@ def electronEcalSPHit(ecalSPHits):
     pmax = 0
     for hit in ecalSPHits:
 
-        if hit.getPosition()[2] > ecal_front_z + sp_thickness + 0.5 or\
+        if hit.getPosition()[2] > sp_ecal_front_z + sp_thickness/2 or\
                 hit.getMomentum()[2] <= 0 or\
                 hit.getTrackID() != 1 or\
                 hit.getPdgID() != 11:
@@ -207,7 +233,7 @@ def gammaEcalSPHit(ecalSPHits):
     pmax = 0
     for hit in ecalSPHits:
 
-        if hit.getPosition()[2] > ecal_front_z + sp_thickness + 0.5 or\
+        if hit.getPosition()[2] > sp_ecal_front_z + sp_thickness/2 or\
                 hit.getMomentum()[2] <= 0 or\
                 not (hit.getPdgID() in [-22,22]):
             continue
@@ -225,4 +251,3 @@ def elec_gamma_ecalSPHits(ecalSPHits):
     gSPHit = gammaEcalSPHit(ecalSPHits)
 
     return eSPHit, gSPHit
-
