@@ -18,12 +18,12 @@ def nearPhotonInfo(trackingHitList, g_trajectory, returnLayer=True, returnNumber
 
         # Near the photn trajectory
         if physTools.dist( physTools.pos(hit)[:2],
-                g_trajectory[ physTools.layerIDofHit( hit ) ] ) < physTools.cellWidth:
+                g_trajectory[ physTools.ecal_layer( hit ) ] ) < physTools.cellWidth:
             n += 1
 
             # Earliest layer
-            if physTools.layerIDofHit( hit ) < layer:
-                layer = physTools.layerIDofHit( hit )
+            if physTools.ecal_layer( hit ) < layer:
+                layer = physTools.ecal_layer( hit )
 
     # Prepare and return desired output
     out = []

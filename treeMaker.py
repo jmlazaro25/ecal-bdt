@@ -256,7 +256,7 @@ def event_process(self):
         
         if hit.getEnergy() > 0:
 
-            layer = physTools.layerIDofHit(hit)
+            layer = physTools.ecal_layer(hit)
             xy_pair = ( hit.getXPos(), hit.getYPos() )
 
             # Territory selections
@@ -364,7 +364,7 @@ def event_process(self):
     # Loop over hits again to calculate the standard deviations
     for hit in self.ecalRecHits:
 
-        layer = physTools.layerIDofHit(hit)
+        layer = physTools.ecal_layer(hit)
         xy_pair = (hit.getXPos(), hit.getYPos())
 
         # Distance to electron trajectory
