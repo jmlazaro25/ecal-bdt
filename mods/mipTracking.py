@@ -73,7 +73,7 @@ def findStraightTracks(hitlist, etraj_ends, ptraj_ends,\
         if len(track) == mst: 
             for hitt in track:
                 if physTools.distPtToLine( physTools.pos(hitt),
-                        ptraj_ends[0], ptraj_ends[1] ) > 8:
+                        ptraj_ends[0], ptraj_ends[1] ) > physTools.cellWidth - 0.5:
                     break
                 continue
 
@@ -82,7 +82,7 @@ def findStraightTracks(hitlist, etraj_ends, ptraj_ends,\
         trk_e = np.array( (track[-1].getXPos(), track[-1].getYPos(), track[-1].getZPos() ) )
         closest_e = physTools.distTwoLines( etraj_ends[0], etraj_ends[1], trk_s, trk_e )
         closest_p = physTools.distTwoLines( ptraj_ends[0], ptraj_ends[1], trk_s, trk_e )
-        if closest_p > 8.7 and closest_e < 17.4:
+        if closest_p > physTools.cellWidth and closest_e < 2*physTools.cellWidth:
             continue
 
         # Remove hits in current track from further consideration
@@ -111,7 +111,7 @@ def findStraightTracks(hitlist, etraj_ends, ptraj_ends,\
             trk_s = np.array( (track[ 0].getXPos(), track[ 0].getYPos(),
                                                     track[ 0].getZPos() ) )
             # If head+tail are w/in one cell of each other
-            if physTools.dist( trk_e, trk_s ) < 8.7:
+            if physTools.dist( trk_e, trk_s ) < physTools.cellWidth:
                 for hit in trk_:
                     trk.append(hit)
                 strtracklist.remove(trk_)
