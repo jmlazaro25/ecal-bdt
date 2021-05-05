@@ -10,13 +10,20 @@ Faster development. Eliminates need for ldmx-analysis or other dependencies.
 
 **Train**
 ```
-ldmx python3 train.py -b <bkgd_file> -s <signal_file> -o dummy --max_evt 100
+ldmx python3 bdt.py train -b <bkgd_file> -s <signal_file> -o dummy --max_evt 100
 ```
 This will produce a file `dummy_weights.pkl` that stores the weights of the trained BDT.
 
 **Evaluate**
 ```
-ldmx python3 eval.py --bdt <bdt.pkl-to-use> --max_evt 100 <file-to-evaluate>
+ldmx python3 bdt.py eval --bdt <bdt.pkl-to-use> --max_evt 100 <file-to-evaluate>
+```
+This will produce a file `bdt_1_<file-to-evalulate>` that is identical to `<file-to-evaluate>` except
+that the `discValue_` member of `EcalVeto` has been updated with the value calculated by the chosen BDT.
+
+**Analyze**
+```
+ldmx python3 bdt.py ana --bdt <bdt.pkl-to-use> --max_evt 100 <file-to-evaluate>
 ```
 This will produce a file `bdt_1_<file-to-evalulate>` that is identical to `<file-to-evaluate>` except
 that the `discValue_` member of `EcalVeto` has been updated with the value calculated by the chosen BDT.

@@ -85,10 +85,7 @@ class SampleContainer:
         # reading or writing
     
         self.veto = ROOT.ldmx.EcalVetoResult()
-        try :
-            self.__attach__(self.veto,'EcalVeto','anaeat')
-        except :
-            self.__attach__(self.veto,'EcalVeto')
+        self.__attach__(self.veto,'EcalVeto','anaeat')
 
     def __attach__(self,obj,coll_name,pass_name='') :
         """Attach an object to a specific branch of the event tree.
@@ -114,12 +111,10 @@ class SampleContainer:
         """Translate the current event into a feature vector for the BDT"""
         return [
             self.veto.getSummedDet(),
-            self.veto.getShowerRMS(),
+            self.veto.getSummedTightIso(),
             self.veto.getAvgLayerHit(),
             self.veto.getStdLayerHit(),
-            self.veto.getEcalBackEnergy(),
-            self.veto.getNStraightTracks(),
-            self.veto.getNLinRegTracks()
+            self.veto.getEcalBackEnergy()
             ]
 
     def translation(self, max_events = None, shuffle = True) :
@@ -256,14 +251,14 @@ def train_action(arg) :
     
     # Make Signal Container
     print('Loading signal files...')
-    sig_sample = bdt.SampleContainer(bdt.smart_recursive_input(arg.sig_files))
+    sig_sample = SampleContainer(smart_recursive_input(arg.sig_files))
     
     # Make Background Container
     print('Loading bkgd files...')
-    bkg_sample = bdt.SampleContainer(bdt.smart_recursive_input(arg.bkg_files))
+    bkg_sample = SampleContainer(smart_recursive_input(arg.bkg_files))
     
     print('Constructing trainer and translating ROOT objects...')
-    t = bdt.Trainer(sig_sample,bkg_sample,arg.max_evt)
+    t = Trainer(sig_sample,bkg_sample,arg.max_evt)
     
     print('Training...')
     t.train(arg.tree_number,arg.eta,arg.depth)
@@ -274,26 +269,36 @@ def train_action(arg) :
     print('Done')
 
 def ana_action(arg) :
-    p = bdt.HistogramPool(arg.out, 'eatAna')
+    p = HistogramPool(arg.out, 'eatAna')
     for c in ['nuc','ap1','ap5','ap10','ap50','ap100','ap500','ap1000'] :
         p.new_category(c)
     
+        # Fill for every event
         p.ecal_bdt = ROOT.TH1F('ecal_bdt',';ECal BDT Disc',100,0.,1.)
-        p.ecal_bdt__hcal_pe = ROOT.TH2F('ecal_bdt__hcal_pe',';ECal BDT Disc;Max HCal PE',
+        p.ecal_bdt__hcal_pe = ROOT.TH2F('ecal_bdt__hcal_pe',
+            ';ECal BDT Disc;Max HCal PE',
             100,0.,1.,300,0.,300.)
-        p.hcal_side__back_fail_layer_bdt = ROOT.TH2F("hcal_side__back_fail_layer_bdt",
-              ";Min Side Layer above PE Cut;Min Back Layer above PE Cut",
-              31,-1,30,101,-1,100);
+
+        # Fill only passing BDT cut
+        p.ecal_tracks__hcal_pe = ROOT.TH2F('ecal_tracks__hcal_pe',
+            ';ECal N Tracks;Max HCal PE',
+            10,-0.5,9.5,50,0.,50.)
     
-        p.ecal_bdt__tracks = ROOT.TH2F('ecal_bdt__tracks',';ECal BDT Disc;N Tracks',
-            100,0.,1.,10,-0.5,9.5)
+        # Fill only passing BDT cut and Track cut
+        p.hcal_side__back_fail_layer = ROOT.TH2F("hcal_side__back_fail_layer",
+              ";Min Side Layer above PE Cut;Min Back Layer above PE Cut",
+              31,-1,30,101,-1,100)
+        p.hcal_side_fail_layer = ROOT.TH1F("hcal_side_fail_layer",
+            ";Min Side Layer above PE Cut",31,-0.5,30.5)
+        p.hcal_back_fail_layer = ROOT.TH1F("hcal_back_fail_layer",
+            ";Min Back Layer above PE Cut",101,-0.5,100.5)
     # create histograms
     
-    evaluator = None
-    if arg.bdt is not None :
-      evaluator = Evaluator(arg.bdt)
+    evaluator = Evaluator(arg.bdt)
     
     input_sample = SampleContainer(smart_recursive_input(arg.input_file))
+    if arg.do_skim :
+        output_sample = SampleContainer([f'hcal_events_{arg.out}'], input_sample.t)
     
     sim_particles = ROOT.std.map(int,'ldmx::SimParticle')()
     input_sample.__attach__(sim_particles, 'SimParticles')
@@ -336,23 +341,34 @@ def ana_action(arg) :
                     min_layer_side = layer
     
         # Calculate BDT disc value
-        #   (or get it from the file)
-        if evaluator is None :
-            d = input_sample.veto.getDisc()
-        else :
-            d = evaluator.__eval__(input_sample.single_translation())
-    
-        p.ecal_bdt.Fill(d, w)
-    
+        d = evaluator.__eval__(input_sample.single_translation())
+
+        pass_bdt_cut = (d > arg.bdt_cut)
+        pass_track_cut = (input_sample.veto.getNStraightTracks() < 3 and input_sample.veto.getNLinRegTracks() == 0)
         max_hcal_pe = max(max_back_pe,max_side_pe)
         track_count = input_sample.veto.getNStraightTracks()+input_sample.veto.getNLinRegTracks()
-    
+
+        p.ecal_bdt.Fill(d, w)
         p.ecal_bdt__hcal_pe.Fill(d, max_hcal_pe, w)
-        p.ecal_bdt__tracks.Fill(d,track_count,w)
-        if d > arg.bdt_cut and track_count == 0:
-            p.hcal_side__back_fail_layer_bdt.Fill(min_layer_side, min_layer_back, w)
+    
+        if pass_bdt_cut :
+            p.ecal_tracks__hcal_pe.Fill(track_count, max_hcal_pe, w)
+            if pass_track_cut :
+                # in HCal events
+                if arg.do_skim :
+                    output_sample.veto.setDiscValue(d)
+                    output_sample.t.Fill()
+
+                p.hcal_side__back_fail_layer.Fill(min_layer_side, min_layer_back, w)
+                if min_layer_back > 0 :
+                    p.hcal_back_fail_layer.Fill(min_layer_back, w)
+                elif min_layer_side > 0 :
+                    p.hcal_side_fail_layer.Fill(min_layer_side, w)
     #loop through events
     
+    if arg.do_skim :
+        output_sample.t.Write()
+        output_sample.f.Close()
     p.save()
 
 if __name__ == '__main__' :
@@ -388,10 +404,11 @@ if __name__ == '__main__' :
     # Analysis Args
     parse_ana = subparsers.add_parser('ana', help='Analyze performance of BDT by evaluating it and filling histograms.')
     parse_ana.add_argument('input_file',nargs='+',help='File(s), Directory(ies), or Listing(s) to run BDT Evaluator on')
+    parse_ana.add_argument('--do_skim',help='Should we skim out the HCal events?',action='store_true')
     parse_ana.add_argument('--out',required=True,help='Name to write output histgorams to.')
-    parse_ana.add_argument('--bdt',default=None,help='BDT to use in evaluation')
+    parse_ana.add_argument('--bdt',required=True,help='BDT to use in evaluation')
     parse_ana.add_argument('--bdt_cut',default=0.9,type=float,help='Analysis cut on BDT Value')
-    parse_ana.add_argument('--pe_cut',default=15,type=float,help='Analysis cut on HCal Max PE')
+    parse_ana.add_argument('--pe_cut',default=3,type=float,help='Analysis cut on HCal Max PE')
     parse_ana.set_defaults(action=ana_action)
     
     arg = parser.parse_args()
