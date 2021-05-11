@@ -522,7 +522,7 @@ if __name__ == "__main__":
     params     = {'objective': 'binary:logistic',
                   'eta': options.eta,
                   'max_depth': options.depth,
-                  'min_child_weigrt': 20,
+                  'min_child_weight': 20,
                   'silent': 1,
                   'subsample':.9,
                   'colsample_bytree': .85,
