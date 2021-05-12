@@ -6,7 +6,7 @@ from mods import ROOTmanager as manager
 from mods import physTools, mipTracking
 cellMap = np.loadtxt('mods/cellmodule.txt')
 
-r.gSystem.Load('<path-to>/ldmx-sw/install/lib/libFramework.so')
+r.gSystem.Load('/home/jmlazaro/research/ldmx-sw/install/lib/libFramework.so')
 
 # TreeModel to build here
 branches_info = {
@@ -89,6 +89,7 @@ def main():
     inlist = pdict['inlist']
     outlist = pdict['outlist']
     group_labels = pdict['groupls']
+    startEvent = pdict['startEvent']
     maxEvent = pdict['maxEvent']
     # Should maybe put in parsing eventually and make event_process *arg
 
@@ -136,7 +137,7 @@ def main():
         proc.extrafs = [ proc.tfMakers[tfMaker].wq for tfMaker in proc.tfMakers ]
 
         # RUN
-        proc.run(maxEvents=maxEvent)
+        proc.run(strEvent=startEvent, maxEvents=maxEvent)
 
     # Remove scratch directory if there is one
     if not batch_mode:     # Don't want to break other batch jobs when one finishes
@@ -183,8 +184,8 @@ def event_process(self):
 
     # Get electron and photon trajectories AND
     # Fiducial categories (filtered into different output trees)
+    e_traj = g_traj = None
     if self.separate:
-        e_traj = g_traj = None
         e_fid = g_fid = False
 
         if e_ecalHit != None:
