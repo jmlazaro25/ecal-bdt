@@ -183,22 +183,23 @@ def event_process(self):
 
     # Get electron and photon trajectories AND
     # Fiducial categories (filtered into different output trees)
-    e_traj = g_traj = None
-    e_fid = g_fid = False
+    if self.separate:
+        e_traj = g_traj = None
+        e_fid = g_fid = False
 
-    if e_ecalHit != None:
-        e_traj = physTools.layerIntercepts(e_ecalPos, e_ecalP)
-        for cell in cellMap:
-            if physTools.dist( cell[1:], e_traj[0] ) <= physTools.cell_radius:
-                e_fid = True
-                break
+        if e_ecalHit != None:
+            e_traj = physTools.layerIntercepts(e_ecalPos, e_ecalP)
+            for cell in cellMap:
+                if physTools.dist( cell[1:], e_traj[0] ) <= physTools.cell_radius:
+                    e_fid = True
+                    break
 
-    if e_targetHit != None:
-        g_traj = physTools.layerIntercepts(g_targPos, g_targP)
-        for cell in cellMap:
-            if physTools.dist( cell[1:], g_traj[0] ) <= physTools.cell_radius:
-                g_fid = True
-                break
+        if e_targetHit != None:
+            g_traj = physTools.layerIntercepts(g_targPos, g_targP)
+            for cell in cellMap:
+                if physTools.dist( cell[1:], g_traj[0] ) <= physTools.cell_radius:
+                    g_fid = True
+                    break
 
     ###################################
     # Compute extra BDT input variables
