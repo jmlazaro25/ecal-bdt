@@ -138,7 +138,7 @@ class TreeProcess:
 
         if strEvent != 0: self.strEvent = strEvent
         if maxEvents != -1: self.maxEvents = maxEvents
-        if maxEvents == -1 or self.strEvent + self.maxEvents > self.tree.GetEntries():
+        if self.maxEvents == -1 or self.strEvent + self.maxEvents > self.tree.GetEntries():
             self.maxEvents = self.tree.GetEntries() - self.strEvent
         maxEvent = self.strEvent + self.maxEvents
         if pfreq != 1000: self.pfreq = pfreq

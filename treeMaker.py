@@ -6,7 +6,7 @@ from mods import ROOTmanager as manager
 from mods import physTools, mipTracking
 cellMap = np.loadtxt('mods/cellmodule.txt')
 
-r.gSystem.Load('/home/jmlazaro/research/ldmx-sw/install/lib/libFramework.so')
+r.gSystem.Load('<path-to>/ldmx-sw/install/lib/libFramework.so')
 
 # TreeModel to build here
 branches_info = {
