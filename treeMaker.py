@@ -90,7 +90,7 @@ def main():
     outlist = pdict['outlist']
     group_labels = pdict['groupls']
     startEvent = pdict['startEvent']
-    maxEvent = pdict['maxEvent']
+    maxEvents = pdict['maxEvents']
     # Should maybe put in parsing eventually and make event_process *arg
 
     # Construct tree processes
@@ -137,7 +137,7 @@ def main():
         proc.extrafs = [ proc.tfMakers[tfMaker].wq for tfMaker in proc.tfMakers ]
 
         # RUN
-        proc.run(strEvent=startEvent, maxEvents=maxEvent)
+        proc.run(strEvent=startEvent, maxEvents=maxEvents)
 
     # Remove scratch directory if there is one
     if not batch_mode:     # Don't want to break other batch jobs when one finishes

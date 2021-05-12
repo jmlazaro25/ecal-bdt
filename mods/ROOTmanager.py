@@ -137,11 +137,14 @@ class TreeProcess:
         # Process events
 
         if strEvent != 0: self.strEvent = strEvent
-        self.maxEvents = maxEvents if maxEvents != -1 else self.tree.GetEntries()
+        if maxEvents != -1: self.maxEvents = maxEvents
+        if maxEvents == -1 or self.strEvent + self.maxEvents > self.tree.GetEntries():
+            self.maxEvents = self.tree.GetEntries() - self.strEvent
+        maxEvent = self.strEvent + self.maxEvents
         if pfreq != 1000: self.pfreq = pfreq
 
         self.event_count = self.strEvent
-        while self.event_count < self.strEvent + self.maxEvents:
+        while self.event_count < maxEvent:
             self.tree.GetEntry(self.event_count)
             if self.event_count%self.pfreq == 0:
                 print('Processing Event: %s'%(self.event_count))
@@ -273,7 +276,7 @@ def parse(nolist = False):
             help="return things without lists (to make things neater for 1 sample runs")
     parser.add_argument('-s','--start', type=int, action='store', dest='startEvent',
             default=0, help='event to start at')
-    parser.add_argument('-m','--max', type=int, action='store', dest='maxEvent',
+    parser.add_argument('-m','--max', type=int, action='store', dest='maxEvents',
             default=-1, help='max events to run over for EACH group')
     args = parser.parse_args()
 
@@ -304,7 +307,7 @@ def parse(nolist = False):
             'groupls': args.group_labels,
             'outlist': outlist,
             'startEvent': args.startEvent,
-            'maxEvent': args.maxEvent
+            'maxEvents': args.maxEvents
             }
 
     return pdict
