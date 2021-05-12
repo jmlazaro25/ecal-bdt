@@ -215,6 +215,8 @@ def event_process(self):
                        np.array([g_traj[-1][0], g_traj[-1][1], physTools.ecal_layerZs[-1] ])]
 
         # Unused epDot and epSep
+        #e_norm  = physTools.unit( e_traj_ends[1] - e_traj_ends[0] )
+        #g_norm  = physTools.unit( g_traj_ends[1] - g_traj_ends[0] )
         #feats['epSep'] = physTools.dist( e_traj_ends[0], g_traj_ends[0] )
         #feats['epDot'] = physTools.dot(e_norm,g_norm)
 
@@ -232,8 +234,6 @@ def event_process(self):
     # Territory setup (consider missing case)
     gToe    = physTools.unit( e_traj_ends[0] - g_traj_ends[0] )
     origin  = g_traj_ends[0] + 0.5*8.7*gToe
-    e_norm  = physTools.unit( e_traj_ends[1] - e_traj_ends[0] )
-    g_norm  = physTools.unit( g_traj_ends[1] - g_traj_ends[0] )
 
     # Recoil electron momentum magnitude and angle with z-axis
     recoilPMag  = physTools.mag(  e_ecalP )                 if e_ecalHit != None else -1.0
