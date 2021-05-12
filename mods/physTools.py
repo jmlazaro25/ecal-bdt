@@ -150,7 +150,7 @@ def mag(iterable):
 
 # Return normalized np array
 def unit(arrayy):
-    return arrayy/mag(arrayy)
+    return np.array(arrayy)/mag(arrayy)
 
 # Dot iterables
 def dot(i1, i2):
@@ -175,10 +175,10 @@ def distTwoLines(h1,h2,p1,p2):
     else: # Lines are parallel; need different method
         return mag( np.cross(e1,h1-p1) )
 
-# Angle with Z
-def angle(vec, units):
-    if units=='degrees': return math.acos(vec[2]/mag(vec))*180.0/math.pi
-    elif units=='radians': return math.acos(vec[2]/mag(vec))
+# Angle between vectors (with z by default)
+def angle(vec, units, vec2=[0,0,1]):
+    if units=='degrees': return math.acos( dot( unit(vec), unit(vec2) ) )*180.0/math.pi
+    elif units=='radians': return math.acos( dot( unit(vec), unit(vec2) ) )
     else: print('\nSpecify valid angle unit ("degrees" or "randians")')
 
 # Get np.ndarray of hit position
