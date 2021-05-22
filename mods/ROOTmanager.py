@@ -48,7 +48,7 @@ class TreeProcess:
     # For analysing .root samples
 
     def __init__(self, event_process, group=[], tree=None, tree_name = None, ID = '',\
-            color=1, maxEvents=-1, pfreq=1000, batch=False, extrafs=None):
+            color=1, strEvent=0, maxEvents=-1, pfreq=1000, batch=False, extrafs=None):
 
         print('\nPreparing {}'.format(ID))
 
@@ -58,6 +58,7 @@ class TreeProcess:
         self.tree_name = tree_name
         self.ID = ID
         self.color = color
+        self.strEvent = strEvent
         self.maxEvents = maxEvents
         self.pfreq = pfreq
         self.batch = batch
@@ -131,16 +132,19 @@ class TreeProcess:
 
         return branch
  
-    def run(self, maxEvents=-1, pfreq=1000):
+    def run(self, strEvent=0, maxEvents=-1, pfreq=1000):
    
         # Process events
 
+        if strEvent != 0: self.strEvent = strEvent
         if maxEvents != -1: self.maxEvents = maxEvents
-        else: self.maxEvents = self.tree.GetEntries()
+        if self.maxEvents == -1 or self.strEvent + self.maxEvents > self.tree.GetEntries():
+            self.maxEvents = self.tree.GetEntries() - self.strEvent
+        maxEvent = self.strEvent + self.maxEvents
         if pfreq != 1000: self.pfreq = pfreq
 
-        self.event_count = 0
-        while self.event_count < self.maxEvents:
+        self.event_count = self.strEvent
+        while self.event_count < maxEvent:
             self.tree.GetEntry(self.event_count)
             if self.event_count%self.pfreq == 0:
                 print('Processing Event: %s'%(self.event_count))
@@ -270,7 +274,9 @@ def parse(nolist = False):
             # for naming files in main() of main script 
     parser.add_argument('--notlist', action='store_true', dest='nolist',
             help="return things without lists (to make things neater for 1 sample runs")
-    parser.add_argument('-m','--max', type=int, action='store', dest='maxEvent',
+    parser.add_argument('-s','--start', type=int, action='store', dest='startEvent',
+            default=0, help='event to start at')
+    parser.add_argument('-m','--max', type=int, action='store', dest='maxEvents',
             default=-1, help='max events to run over for EACH group')
     args = parser.parse_args()
 
@@ -300,7 +306,8 @@ def parse(nolist = False):
             'inlist': inlist,
             'groupls': args.group_labels,
             'outlist': outlist,
-            'maxEvent': args.maxEvent
+            'startEvent': args.startEvent,
+            'maxEvents': args.maxEvents
             }
 
     return pdict

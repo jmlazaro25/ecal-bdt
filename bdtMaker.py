@@ -55,6 +55,8 @@ class sampleContainer:
                     event.electronTerritoryHits     ,
                     event.photonTerritoryHits       ,
                     event.TerritoryRatio            ,
+                    event.epSep                     ,
+                    event.epDot                     ,
                     # Longitudinal segment variables
                     event.energy_s1                 ,
                     event.nHits_s1                  ,
@@ -442,7 +444,7 @@ class sampleContainer:
                     event.oContLayerStd_x2_s3       ,
                     event.oContLayerStd_x3_s3       ,
                     event.oContLayerStd_x4_s3       ,
-                    event.oContLayerStd_x5_s3       ,
+                    event.oContLayerStd_x5_s3       
                     ]
 
             self.events.append(evt)

@@ -35,11 +35,8 @@ branches_info = {
         'epSep':                     {'rtype': float, 'default': 0.},
         'epDot':                     {'rtype': float, 'default': 0.},
         # Quantities needed for BDT analysis
-        # Commented out for now because no samples with trigger yet
-        #'trigPass':                  {'rtype': int,   'default': 1 },
-        'recoilPT':                  {'rtype': float, 'default': 0.},
-        'nNoiseHits':                {'rtype': int,   'default': 0 },
-        'noiseEnergy':               {'rtype': float, 'default': 0.}
+        'trigPass':                  {'rtype': int,   'default': 1 },
+        'recoilPT':                  {'rtype': float, 'default': 0.}
         }
 
 for i in range(1, physTools.nSegments + 1):
@@ -95,7 +92,8 @@ def main():
     inlist = pdict['inlist']
     outlist = pdict['outlist']
     group_labels = pdict['groupls']
-    maxEvent = pdict['maxEvent']
+    startEvent = pdict['startEvent']
+    maxEvents = pdict['maxEvents']
     # Should maybe put in parsing eventually and make event_process *arg
 
     # Construct tree processes
@@ -112,14 +110,10 @@ def main():
 
         # Branches needed
         proc.ecalVeto     = proc.addBranch('EcalVetoResult', 'EcalVeto_v12')
-
-        # Commented out for now because no samples with trigger yet
-        # proc.trigResult   = proc.addBranch('TriggerResult', 'Trigger_v12')
-
+        proc.trigResult   = proc.addBranch('TriggerResult', 'Trigger_v12')
         proc.targetSPHits = proc.addBranch('SimTrackerHit', 'TargetScoringPlaneHits_v12')
         proc.ecalSPHits   = proc.addBranch('SimTrackerHit', 'EcalScoringPlaneHits_v12')
         proc.ecalRecHits  = proc.addBranch('EcalHit', 'EcalRecHits_v12')
-        proc.ecalSimHits  = proc.addBranch('SimCalorimeterHit', 'EcalSimHits_v12')
 
         # Tree/Files(s) to make
         print('\nRunning %s'%(proc.ID))
@@ -147,7 +141,7 @@ def main():
         proc.extrafs = [ proc.tfMakers[tfMaker].wq for tfMaker in proc.tfMakers ]
 
         # RUN
-        proc.run(maxEvents=maxEvent)
+        proc.run(strEvent=startEvent, maxEvents=maxEvents)
 
     # Remove scratch directory if there is one
     if not batch_mode:     # Don't want to break other batch jobs when one finishes
@@ -162,7 +156,10 @@ def event_process(self):
     # Initialize BDT input variables w/ defaults
     feats = next(iter(self.tfMakers.values())).resetFeats()
 
+    #########################################
     # Assign pre-computed variables
+    #########################################
+
     feats['nReadoutHits']       = self.ecalVeto.getNReadoutHits()
     feats['summedDet']          = self.ecalVeto.getSummedDet()
     feats['summedTightIso']     = self.ecalVeto.getSummedTightIso()
@@ -189,7 +186,6 @@ def event_process(self):
     if e_targetHit != None:
         g_targPos, g_targP = physTools.gammaTargetInfo(e_targetHit)
     else:  # Should about never happen -> division by 0 in g_traj
-
         # Print statement commented out for now because it's a little noisy
         # print('No e at target SP!')
         g_targPos = g_targP = np.zeros(3)
@@ -197,21 +193,22 @@ def event_process(self):
     # Get electron and photon trajectories AND
     # Fiducial categories (filtered into different output trees)
     e_traj = g_traj = None
-    e_fid = g_fid = False
+    if self.separate:
+        e_fid = g_fid = False
 
-    if e_ecalHit != None:
-        e_traj = physTools.layerIntercepts(e_ecalPos, e_ecalP)
-        for cell in cellMap:
-            if physTools.dist( cell[1:], e_traj[0] ) <= physTools.cell_radius:
-                e_fid = True
-                break
+        if e_ecalHit != None:
+            e_traj = physTools.layerIntercepts(e_ecalPos, e_ecalP)
+            for cell in cellMap:
+                if physTools.dist( cell[1:], e_traj[0] ) <= physTools.cell_radius:
+                    e_fid = True
+                    break
 
-    if e_targetHit != None:
-        g_traj = physTools.layerIntercepts(g_targPos, g_targP)
-        for cell in cellMap:
-            if physTools.dist( cell[1:], g_traj[0] ) <= physTools.cell_radius:
-                g_fid = True
-                break
+        if e_targetHit != None:
+            g_traj = physTools.layerIntercepts(g_targPos, g_targP)
+            for cell in cellMap:
+                if physTools.dist( cell[1:], g_traj[0] ) <= physTools.cell_radius:
+                    g_fid = True
+                    break
 
     ###################################
     # Compute extra BDT input variables
@@ -226,7 +223,6 @@ def event_process(self):
         g_traj_ends = [np.array([g_traj[0][0], g_traj[0][1], physTools.ecal_layerZs[0]    ]),
                        np.array([g_traj[-1][0], g_traj[-1][1], physTools.ecal_layerZs[-1] ])]
 
-        # Naive fix for epSep and epDot calculations
         e_norm  = physTools.unit( e_traj_ends[1] - e_traj_ends[0] )
         g_norm  = physTools.unit( g_traj_ends[1] - g_traj_ends[0] )
 
@@ -520,8 +516,8 @@ def event_process(self):
     # Quantities needed for BDT analysis
     ##############################################
 
-    # Get the trigger result (Commented out because no samples with trigger)
-    #feats['trigPass'] = self.trigResult.passed()
+    # Get the trigger result
+    feats['trigPass'] = self.trigResult.passed()
 
     # Calculate recoilPT from e momentum at the target SP 
     e_targetHit = physTools.electronTargetSPHit(self.targetSPHits)
@@ -530,36 +526,6 @@ def event_process(self):
         feats['recoilPT'] = math.sqrt(e_targP[0]**2 + e_targP[1]**2)
     else:
         feats['recoilPT'] = None
-
-    # Sort the ecal rec hits and sim hits by hitID
-    ecalRecHitsSorted = [hit for hit in self.ecalRecHits]
-    ecalRecHitsSorted.sort(key = lambda hit : hit.getID())
-    ecalSimHitsSorted = [hit for hit in self.ecalSimHits]
-    ecalSimHitsSorted.sort(key = lambda hit : hit.getID())
-
-    # Loop over hits to get noise information
-    for recHit in ecalRecHitsSorted:
-
-        # If the noise flag is set, proceed normally
-        if recHit.isNoise():
-            feats['nNoiseHits'] += 1
-            feats['noiseEnergy'] += recHit.getEnergy()
-
-        # Otherwise, check for a sim hit whose hitID matches
-        nSimHitMatch = 0
-
-        for simHit in ecalSimHitsSorted:
-
-            if simHit.getID() == recHit.getID():
-                nSimHitMatch += 1
-
-            elif simHit.getID() > recHit.getID():
-                break
-
-        # If no matching sim hit, count it as a noise hit
-        if (not recHit.isNoise()) and (nSimHitMatch == 0):
-            feats['nNoiseHits'] += 1
-            feats['noiseEnergy'] += recHit.getEnergy()
 
     # Fill the tree (according to fiducial category) with values for this event
     #print(e_fid, g_fid)
