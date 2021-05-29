@@ -4,34 +4,72 @@ import ROOT as r
 import numpy as np
 from mods import ROOTmanager as manager
 from mods import physTools, mipTracking
-cellMap = np.loadtxt('mods/cellmodule.txt')
 
+cellMap = np.loadtxt('/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v3.0.0-w-container/bdt/mods/cellmodule.txt')
 r.gSystem.Load('/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v3.0.0-w-container/ldmx-sw/install/lib/libFramework.so')
 
-# TreeModel to build here
+# Tree model to build here
 branches_info = {
         # Base variables
-        'nReadoutHits':    {'rtype': int,   'default': 0 },
-        'summedDet':       {'rtype': float, 'default': 0.},
-        'summedTightIso':  {'rtype': float, 'default': 0.},
-        'maxCellDep':      {'rtype': float, 'default': 0.},
-        'showerRMS':       {'rtype': float, 'default': 0.},
-        'xStd':            {'rtype': float, 'default': 0.},
-        'yStd':            {'rtype': float, 'default': 0.},
-        'avgLayerHit':     {'rtype': float, 'default': 0.},
-        'stdLayerHit':     {'rtype': float, 'default': 0.},
-        'deepestLayerHit': {'rtype': int,   'default': 0 },
-        'ecalBackEnergy':  {'rtype': float, 'default': 0.},
-        # Hit information
-        'recHitAmplitude': {'rtype': float, 'default': 0.},
-        'recHitEnergy':    {'rtype': float, 'default': 0.},
-        'nRecHits':        {'rtype': int,   'default': 0 },
+        'nReadoutHits'     : {'rtype': int,   'default': 0 },
+        'summedDet'        : {'rtype': float, 'default': 0.},
+        'summedTightIso'   : {'rtype': float, 'default': 0.},
+        'maxCellDep'       : {'rtype': float, 'default': 0.},
+        'showerRMS'        : {'rtype': float, 'default': 0.},
+        'xStd'             : {'rtype': float, 'default': 0.},
+        'yStd'             : {'rtype': float, 'default': 0.},
+        'avgLayerHit'      : {'rtype': float, 'default': 0.},
+        'stdLayerHit'      : {'rtype': float, 'default': 0.},
+        'deepestLayerHit'  : {'rtype': int,   'default': 0 },
+        'ecalBackEnergy'   : {'rtype': float, 'default': 0.},
+        # Rec hit information
+        'totalRecAmplitude': {'rtype': float, 'default': 0.},
+        'totalRecEnergy'   : {'rtype': float, 'default': 0.},
+        'nRecHits'         : {'rtype': int,   'default': 0 },
         # Sim hit information
-        'simHitEDep':      {'rtype': float, 'default': 0.},
-        'nSimHits':        {'rtype': int,   'default': 0 },
+        'totalSimEDep'     : {'rtype': float, 'default': 0.},
+        'nSimHits'         : {'rtype': int,   'default': 0 },
         # Noise information
-        'noiseEnergy':     {'rtype': float, 'default': 0.},
-        'nNoiseHits':      {'rtype': int,   'default': 0 }
+        'totalNoiseEnergy' : {'rtype': float, 'default': 0.},
+        'nNoiseHits'       : {'rtype': int,   'default': 0 }
+}
+
+# Branches needed by TTrees storing hit-by-hit information
+recVsSimHitBranches = {
+    'recHitAmplitude': {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'recHitEnergy'   : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'simHitMatchEDep': {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'totalSimEDep'   : {'address': np.zeros(1, dtype = float), 'rtype': float}
+}
+
+recHitBranches = {
+    'recHitX'        : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'recHitY'        : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'recHitZ'        : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'recHitLayer'    : {'address': np.zeros(1, dtype = int  ), 'rtype': int  },
+    'recHitAmplitude': {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'recHitEnergy'   : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'totalSimEDep'   : {'address': np.zeros(1, dtype = float), 'rtype': float}
+}
+
+simHitBranches = {
+    'simHitX'     : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'simHitY'     : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'simHitZ'     : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'simHitLayer' : {'address': np.zeros(1, dtype = int  ), 'rtype': int  },
+    'simHitEDep'  : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'totalSimEDep': {'address': np.zeros(1, dtype = float), 'rtype': float}
+}
+
+simParticleBranches = {
+    'pdgID'       : {'address': np.zeros(1, dtype = int  ), 'rtype': int  },
+    'nParents'    : {'address': np.zeros(1, dtype = int  ), 'rtype': int  },
+    'nDaughters'  : {'address': np.zeros(1, dtype = int  ), 'rtype': int  },
+    'pX'          : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'pY'          : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'pZ'          : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'energy'      : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'totalSimEDep': {'address': np.zeros(1, dtype = float), 'rtype': float}
 }
 
 def main():
@@ -65,6 +103,7 @@ def main():
         proc.ecalSPHits   = proc.addBranch('SimTrackerHit', 'EcalScoringPlaneHits_v12')
         proc.ecalRecHits  = proc.addBranch('EcalHit', 'EcalRecHits_v12')
         proc.ecalSimHits  = proc.addBranch('SimCalorimeterHit', 'EcalSimHits_v12')
+        proc.simParticles = proc.addBranch('SimParticle', 'SimParticles_v12')
 
         # Tree/Files(s) to make
         print('\nRunning %s'%(proc.ID))
@@ -83,24 +122,70 @@ def main():
         for tfMaker in proc.tfMakers:
             proc.tfMakers[tfMaker] = manager.TreeMaker(group_labels[procs.index(proc)]+\
                                         '_{}.root'.format(tfMaker),\
-                                        "SampleAnalysis",\
+                                        "EcalInfo",\
                                         branches_info,\
                                         outlist[procs.index(proc)]
                                         )
 
-        # N-tuples for 2D distributions
-        proc.amp_vs_edep_tup = r.TNtuple('recHitAmplitude_vs_simHitEDep', 'Rec Hit Amplitude vs. Sim Hit EDep', 'simHitEDep:recHitAmplitude')
-        proc.energy_vs_edep_tup = r.TNtuple('recHitEnergy_vs_simHitEDep', 'Rec Hit Energy vs. Sim Hit EDep', 'simHitEDep:recHitEnergy')
+        # TTree for rec/sim hit comparison
+        proc.recVsSimHitInfo = r.TTree('RecVsSimHitInfo', 'Information for rec/sim hit comparison')
 
-        # Simple function used to save the n-tuples
-        def saveTuples():
-            proc.amp_vs_edep_tup.Write()
-            proc.energy_vs_edep_tup.Write()
+        for branch in recVsSimHitBranches:
+
+            if str(recVsSimHitBranches[branch]['rtype']) == "<class 'float'>"\
+              or str(recVsSimHitBranches[branch]['rtype']) == "<type 'float'>":
+                proc.recVsSimHitInfo.Branch(branch, recVsSimHitBranches[branch]['address'], branch + '/D')
+
+            elif str(recVsSimHitBranches[branch]['rtype']) == "<class 'int'>"\
+              or str(recVsSimHitBranches[branch]['rtype']) == "<type 'int'>":
+                proc.recVsSimHitInfo.Branch(branch, recVsSimHitBranches[branch]['address'], branch + '/I')
+
+        # TTree for rec hit information
+        proc.recHitInfo = r.TTree('RecHitInfo', 'Rec hit information')
+
+        for branch in recHitBranches:
+
+            if str(recHitBranches[branch]['rtype']) == "<class 'float'>"\
+              or str(recHitBranches[branch]['rtype']) == "<type 'float'>":
+                proc.recHitInfo.Branch(branch, recHitBranches[branch]['address'], branch + '/D')
+
+            elif str(recHitBranches[branch]['rtype']) == "<class 'int'>"\
+              or str(recHitBranches[branch]['rtype']) == "<type 'int'>":
+                proc.recHitInfo.Branch(branch, recHitBranches[branch]['address'], branch + '/I')
+
+        # TTree for sim hit information
+        proc.simHitInfo = r.TTree('SimHitInfo', 'Sim hit information')
+
+        for branch in simHitBranches:
+
+            if str(simHitBranches[branch]['rtype']) == "<class 'float'>"\
+              or str(simHitBranches[branch]['rtype']) == "<type 'float'>":
+                proc.simHitInfo.Branch(branch, simHitBranches[branch]['address'], branch + '/D')
+
+            elif str(simHitBranches[branch]['rtype']) == "<class 'int'>"\
+              or str(simHitBranches[branch]['rtype']) == "<type 'int'>":
+                proc.simHitInfo.Branch(branch, simHitBranches[branch]['address'], branch + '/I')
+
+        # TTree for sim particle information
+        proc.simParticleInfo = r.TTree('SimParticleInfo', 'Sim particle information')
+
+        for branch in simParticleBranches:
+
+            if str(simParticleBranches[branch]['rtype']) == "<class 'float'>"\
+              or str(simParticleBranches[branch]['rtype']) == "<type 'float'>":
+                proc.simParticleInfo.Branch(branch, simParticleBranches[branch]['address'], branch + '/D')
+
+            elif str(simParticleBranches[branch]['rtype']) == "<class 'int'>"\
+              or str(simParticleBranches[branch]['rtype']) == "<type 'int'>":
+                proc.simParticleInfo.Branch(branch, simParticleBranches[branch]['address'], branch + '/I')
 
         # Gets executed at the end of run()
         proc.extrafs = []
         for tfMaker in proc.tfMakers:
-            proc.extrafs.append(saveTuples)
+            proc.extrafs.append(proc.recVsSimHitInfo.Write)
+            proc.extrafs.append(proc.recHitInfo.Write)
+            proc.extrafs.append(proc.simHitInfo.Write)
+            proc.extrafs.append(proc.simParticleInfo.Write)
         for tfMaker in proc.tfMakers:
             proc.extrafs.append(proc.tfMakers[tfMaker].wq)
 
@@ -178,23 +263,63 @@ def event_process(self):
     # Quantities needed for sample analysis
     #################################################
 
+    # Global rec hit information
+    feats['totalRecAmplitude'] = sum([recHit.getAmplitude() for recHit in self.ecalRecHits])
+    feats['totalRecEnergy'] = sum([recHit.getEnergy() for recHit in self.ecalRecHits])
+    feats['nRecHits'] = len([recHit for recHit in self.ecalRecHits])
+
+    # Global sim hit information
+    feats['totalSimEDep'] = sum([simHit.getEdep() for simHit in self.ecalSimHits])
+    feats['nSimHits'] = len([simHit for simHit in self.ecalSimHits])
+
+    # Hit-by-hit rec hit information
+    for recHit in self.ecalRecHits:
+        recHitBranches['recHitX'        ]['address'][0] = recHit.getXPos()
+        recHitBranches['recHitY'        ]['address'][0] = recHit.getYPos()
+        recHitBranches['recHitZ'        ]['address'][0] = recHit.getZPos()
+        recHitBranches['recHitLayer'    ]['address'][0] = physTools.ecal_layer(recHit)
+        recHitBranches['recHitAmplitude']['address'][0] = recHit.getAmplitude()
+        recHitBranches['recHitEnergy'   ]['address'][0] = recHit.getEnergy()
+        recHitBranches['totalSimEDep'   ]['address'][0] = feats['totalSimEDep']
+
+        self.recHitInfo.Fill()
+
+    # Hit-by-hit sim hit information
+    for simHit in self.ecalSimHits:
+        simHitBranches['simHitX'     ]['address'][0] = simHit.getPosition()[0]
+        simHitBranches['simHitY'     ]['address'][0] = simHit.getPosition()[1]
+        simHitBranches['simHitZ'     ]['address'][0] = simHit.getPosition()[2]
+        simHitBranches['simHitLayer' ]['address'][0] = physTools.ecal_layer(simHit)
+        simHitBranches['simHitEDep'  ]['address'][0] = simHit.getEdep()
+        simHitBranches['totalSimEDep']['address'][0] = feats['totalSimEDep']
+
+        self.simHitInfo.Fill()
+
+    # Particle-by-particle sim particle information
+    for simParticle in self.simParticles:
+        simParticleBranches['pdgID'       ]['address'][0] = simParticle[1].getPdgID()
+        simParticleBranches['nParents'    ]['address'][0] = len(simParticle[1].getParents())
+        simParticleBranches['nDaughters'  ]['address'][0] = len(simParticle[1].getDaughters())
+        simParticleBranches['pX'          ]['address'][0] = simParticle[1].getMomentum()[0]
+        simParticleBranches['pY'          ]['address'][0] = simParticle[1].getMomentum()[1]
+        simParticleBranches['pZ'          ]['address'][0] = simParticle[1].getMomentum()[2]
+        simParticleBranches['energy'      ]['address'][0] = simParticle[1].getEnergy()
+        simParticleBranches['totalSimEDep']['address'][0] = feats['totalSimEDep']
+
+        self.simParticleInfo.Fill()
+
     # Sort the ecal rec hits and sim hits by hitID
     ecalRecHitsSorted = [hit for hit in self.ecalRecHits]
     ecalRecHitsSorted.sort(key = lambda hit : hit.getID())
     ecalSimHitsSorted = [hit for hit in self.ecalSimHits]
     ecalSimHitsSorted.sort(key = lambda hit : hit.getID())
 
-    # Loop over hits to get hit information
+    # For-loop to get noise info and info for 2D distributions
     for recHit in ecalRecHitsSorted:
-
-        # Add to totals
-        feats['recHitAmplitude'] += recHit.getAmplitude()
-        feats['recHitEnergy'] += recHit.getEnergy()
-        feats['nRecHits'] += 1
 
         # If the noise flag is set, count the hit as a noise hit
         if recHit.isNoise():
-            feats['noiseEnergy'] += recHit.getEnergy()
+            feats['totalNoiseEnergy'] += recHit.getEnergy()
             feats['nNoiseHits'] += 1
 
         # Otherwise, check for a sim hit whose hitID matches
@@ -210,19 +335,18 @@ def event_process(self):
             elif simHit.getID() > recHit.getID():
                 break
 
-        # Fill the n-tuples
-        self.amp_vs_edep_tup.Fill(simHitMatchEDep, recHit.getAmplitude())
-        self.energy_vs_edep_tup.Fill(simHitMatchEDep, recHit.getEnergy())
+        # Fill the TTree
+        recVsSimHitBranches['recHitAmplitude']['address'][0] = recHit.getAmplitude()
+        recVsSimHitBranches['recHitEnergy'   ]['address'][0] = recHit.getEnergy()
+        recVsSimHitBranches['simHitMatchEDep']['address'][0] = simHitMatchEDep
+        recVsSimHitBranches['totalSimEDep'   ]['address'][0] = feats['totalSimEDep']
+
+        self.recVsSimHitInfo.Fill()
 
         # If no matching sim hit exists, count the hit as a noise hit
         if (not recHit.isNoise()) and (nSimHitMatch == 0):
-            feats['noiseEnergy'] += recHit.getEnergy()
+            feats['totalNoiseEnergy'] += recHit.getEnergy()
             feats['nNoiseHits'] += 1
-
-    # Loop over sim hits to get sim hit information
-    for simHit in ecalSimHitsSorted:
-        feats['simHitEDep'] += simHit.getEdep()
-        feats['nSimHits'] += 1
 
     # Fill the tree (according to fiducial category) with values for this event
     #print(e_fid, g_fid)
@@ -236,3 +360,4 @@ def event_process(self):
 
 if __name__ == "__main__":
     main()
+

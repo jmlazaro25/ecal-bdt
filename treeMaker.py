@@ -4,7 +4,7 @@ import ROOT as r
 import numpy as np
 from mods import ROOTmanager as manager
 from mods import physTools, mipTracking
-cellMap = np.loadtxt('mods/cellmodule.txt')
+cellMap = np.loadtxt('/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v3.0.0-w-container/bdt/mods/cellmodule.txt')
 
 r.gSystem.Load('/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v3.0.0-w-container/ldmx-sw/install/lib/libFramework.so')
 
