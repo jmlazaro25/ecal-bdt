@@ -256,8 +256,6 @@ def event_process(self):
     if e_targetHit != None:
         g_targPos, g_targP = physTools.gammaTargetInfo(e_targetHit)
     else:  # Should about never happen -> division by 0 in g_traj
-        # Print statement commented out for now because it's a little noisy
-        # print('No e at target SP!')
         g_targPos = g_targP = np.zeros(3)
 
     # Get electron and photon trajectories AND
@@ -377,7 +375,6 @@ def event_process(self):
             feats['nNoiseHits'] += 1
 
     # Fill the tree (according to fiducial category) with values for this event
-    #print(e_fid, g_fid)
     if not self.separate:
         self.tfMakers['unsorted'].fillEvent(feats)
     else:
