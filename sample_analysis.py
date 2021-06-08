@@ -29,12 +29,29 @@ branches_info = {
         # Sim hit information
         'totalSimEDep'     : {'rtype': float, 'default': 0.},
         'nSimHits'         : {'rtype': int,   'default': 0 },
+        # Sim particle information
+        'nElectrons'       : {'rtype': int,   'default': 0 },
+        'nPhotons'         : {'rtype': int,   'default': 0 },
         # Noise information
         'totalNoiseEnergy' : {'rtype': float, 'default': 0.},
         'nNoiseHits'       : {'rtype': int,   'default': 0 }
 }
 
-# Branches needed by TTrees storing hit-by-hit information
+for i in range(1, physTools.nRegions + 1):
+
+    # Electron RoC variables
+    branches_info['electronContainmentEnergy_x{}'.format(i)] = {'rtype': float, 'default': 0.}
+
+    # Photon RoC variables
+    branches_info['photonContainmentEnergy_x{}'.format(i)]   = {'rtype': float, 'default': 0.}
+
+    # Outside RoC variables
+    branches_info['outsideContainmentEnergy_x{}'.format(i)]  = {'rtype': float, 'default': 0.}
+    branches_info['outsideContainmentNHits_x{}'.format(i)]   = {'rtype': int,   'default': 0 }
+    branches_info['outsideContainmentXStd_x{}'.format(i)]    = {'rtype': float, 'default': 0.}
+    branches_info['outsideContainmentYStd_x{}'.format(i)]    = {'rtype': float, 'default': 0.}
+
+# Branches needed by TTrees storing hit-by-hit/particle-by-particle information
 recVsSimHitBranches = {
     'recHitAmplitude': {'address': np.zeros(1, dtype = float), 'rtype': float},
     'recHitEnergy'   : {'address': np.zeros(1, dtype = float), 'rtype': float},
@@ -62,13 +79,13 @@ simHitBranches = {
 }
 
 simParticleBranches = {
+    'vertX'       : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'vertY'       : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'vertZ'       : {'address': np.zeros(1, dtype = float), 'rtype': float},
+    'energy'      : {'address': np.zeros(1, dtype = float), 'rtype': float},
     'pdgID'       : {'address': np.zeros(1, dtype = int  ), 'rtype': int  },
     'nParents'    : {'address': np.zeros(1, dtype = int  ), 'rtype': int  },
     'nDaughters'  : {'address': np.zeros(1, dtype = int  ), 'rtype': int  },
-    'pX'          : {'address': np.zeros(1, dtype = float), 'rtype': float},
-    'pY'          : {'address': np.zeros(1, dtype = float), 'rtype': float},
-    'pZ'          : {'address': np.zeros(1, dtype = float), 'rtype': float},
-    'energy'      : {'address': np.zeros(1, dtype = float), 'rtype': float},
     'totalSimEDep': {'address': np.zeros(1, dtype = float), 'rtype': float}
 }
 
@@ -220,6 +237,14 @@ def event_process(self):
     feats['stdLayerHit']        = self.ecalVeto.getStdLayerHit()
     feats['deepestLayerHit']    = self.ecalVeto.getDeepestLayerHit() 
     feats['ecalBackEnergy']     = self.ecalVeto.getEcalBackEnergy()
+
+    for i in range(0, physTools.nRegions):
+        feats['electronContainmentEnergy_x{}'.format(i + 1)] = self.ecalVeto.getElectronContainmentEnergy()[i]
+        feats['photonContainmentEnergy_x{}'.format(i + 1)  ] = self.ecalVeto.getPhotonContainmentEnergy()[i]
+        feats['outsideContainmentEnergy_x{}'.format(i + 1) ] = self.ecalVeto.getOutsideContainmentEnergy()[i]
+        feats['outsideContainmentNHits_x{}'.format(i + 1)  ] = self.ecalVeto.getOutsideContainmentNHits()[i]
+        feats['outsideContainmentXStd_x{}'.format(i + 1)   ] = self.ecalVeto.getOutsideContainmentXStd()[i]
+        feats['outsideContainmentYStd_x{}'.format(i + 1)   ] = self.ecalVeto.getOutsideContainmentYStd()[i]
     
     ###################################
     # Determine event type
@@ -272,6 +297,10 @@ def event_process(self):
     feats['totalSimEDep'] = sum([simHit.getEdep() for simHit in self.ecalSimHits])
     feats['nSimHits'] = len([simHit for simHit in self.ecalSimHits])
 
+    # Global sim particle information
+    feats['nElectrons'] = len([simParticle for trackID, simParticle in self.simParticles if (simParticle.getPdgID() == 11)])
+    feats['nPhotons'] = len([simParticle for trackID, simParticle in self.simParticles if (simParticle.getPdgID() == 22)])
+
     # Hit-by-hit rec hit information
     for recHit in self.ecalRecHits:
         recHitBranches['recHitX'        ]['address'][0] = recHit.getXPos()
@@ -296,14 +325,14 @@ def event_process(self):
         self.simHitInfo.Fill()
 
     # Particle-by-particle sim particle information
-    for simParticle in self.simParticles:
-        simParticleBranches['pdgID'       ]['address'][0] = simParticle[1].getPdgID()
-        simParticleBranches['nParents'    ]['address'][0] = len(simParticle[1].getParents())
-        simParticleBranches['nDaughters'  ]['address'][0] = len(simParticle[1].getDaughters())
-        simParticleBranches['pX'          ]['address'][0] = simParticle[1].getMomentum()[0]
-        simParticleBranches['pY'          ]['address'][0] = simParticle[1].getMomentum()[1]
-        simParticleBranches['pZ'          ]['address'][0] = simParticle[1].getMomentum()[2]
-        simParticleBranches['energy'      ]['address'][0] = simParticle[1].getEnergy()
+    for trackID, simParticle in self.simParticles:
+        simParticleBranches['vertX'       ]['address'][0] = simParticle.getVertex()[0]
+        simParticleBranches['vertY'       ]['address'][0] = simParticle.getVertex()[1]
+        simParticleBranches['vertZ'       ]['address'][0] = simParticle.getVertex()[2]
+        simParticleBranches['energy'      ]['address'][0] = simParticle.getEnergy()
+        simParticleBranches['pdgID'       ]['address'][0] = simParticle.getPdgID()
+        simParticleBranches['nParents'    ]['address'][0] = len(simParticle.getParents())
+        simParticleBranches['nDaughters'  ]['address'][0] = len(simParticle.getDaughters())
         simParticleBranches['totalSimEDep']['address'][0] = feats['totalSimEDep']
 
         self.simParticleInfo.Fill()

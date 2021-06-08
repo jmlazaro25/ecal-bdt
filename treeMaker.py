@@ -4,8 +4,8 @@ import ROOT as r
 import numpy as np
 from mods import ROOTmanager as manager
 from mods import physTools, mipTracking
-cellMap = np.loadtxt('/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v3.0.0-w-container/bdt/mods/cellmodule.txt')
 
+cellMap = np.loadtxt('/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v3.0.0-w-container/bdt/mods/cellmodule.txt')
 r.gSystem.Load('/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v3.0.0-w-container/ldmx-sw/install/lib/libFramework.so')
 
 # TreeModel to build here
@@ -373,64 +373,66 @@ def event_process(self):
     # Loop over hits again to calculate the standard deviations
     for hit in self.ecalRecHits:
 
-        layer = physTools.ecal_layer(hit)
-        xy_pair = (hit.getXPos(), hit.getYPos())
+        if hit.getEnergy() > 0:
 
-        # Distance to electron trajectory
-        if e_traj != None:
-            xy_e_traj = (e_traj[layer][0], e_traj[layer][1])
-            distance_e_traj = physTools.dist(xy_pair, xy_e_traj)
-        else:
-            distance_e_traj = -1.0
+            layer = physTools.ecal_layer(hit)
+            xy_pair = (hit.getXPos(), hit.getYPos())
 
-        # Distance to photon trajectory
-        if g_traj != None:
-            xy_g_traj = (g_traj[layer][0], g_traj[layer][1])
-            distance_g_traj = physTools.dist(xy_pair, xy_g_traj)
-        else:
-            distance_g_traj = -1.0
+            # Distance to electron trajectory
+            if e_traj != None:
+                xy_e_traj = (e_traj[layer][0], e_traj[layer][1])
+                distance_e_traj = physTools.dist(xy_pair, xy_e_traj)
+            else:
+                distance_e_traj = -1.0
 
-        # Decide which longitudinal segment the hit is in and add to sums
-        for i in range(1, physTools.nSegments + 1):
+            # Distance to photon trajectory
+            if g_traj != None:
+                xy_g_traj = (g_traj[layer][0], g_traj[layer][1])
+                distance_g_traj = physTools.dist(xy_pair, xy_g_traj)
+            else:
+                distance_g_traj = -1.0
 
-            if (physTools.segLayers[i - 1] <= layer) and\
-                    (layer <= physTools.segLayers[i] - 1):
-                feats['xStd_s{}'.format(i)] += ((xy_pair[0] -\
-                        feats['xMean_s{}'.format(i)])**2)*hit.getEnergy()
-                feats['yStd_s{}'.format(i)] += ((xy_pair[1] -\
-                        feats['yMean_s{}'.format(i)])**2)*hit.getEnergy()
-                feats['layerStd_s{}'.format(i)] += ((layer -\
-                        feats['layerMean_s{}'.format(i)])**2)*hit.getEnergy()
+            # Decide which longitudinal segment the hit is in and add to sums
+            for i in range(1, physTools.nSegments + 1):
 
-                # Decide which containment region the hit is in and add to sums
-                for j in range(1, physTools.nRegions + 1):
+                if (physTools.segLayers[i - 1] <= layer) and\
+                        (layer <= physTools.segLayers[i] - 1):
+                    feats['xStd_s{}'.format(i)] += ((xy_pair[0] -\
+                            feats['xMean_s{}'.format(i)])**2)*hit.getEnergy()
+                    feats['yStd_s{}'.format(i)] += ((xy_pair[1] -\
+                            feats['yMean_s{}'.format(i)])**2)*hit.getEnergy()
+                    feats['layerStd_s{}'.format(i)] += ((layer -\
+                            feats['layerMean_s{}'.format(i)])**2)*hit.getEnergy()
 
-                    if ((j - 1)*e_radii[layer] <= distance_e_traj)\
-                      and (distance_e_traj < j*e_radii[layer]):
-                        feats['eContXStd_x{}_s{}'.format(j,i)] += ((xy_pair[0] -\
-                                feats['eContXMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
-                        feats['eContYStd_x{}_s{}'.format(j,i)] += ((xy_pair[1] -\
-                                feats['eContYMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
-                        feats['eContLayerStd_x{}_s{}'.format(j,i)] += ((layer -\
-                            feats['eContLayerMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
+                    # Decide which containment region the hit is in and add to sums
+                    for j in range(1, physTools.nRegions + 1):
 
-                    if ((j - 1)*g_radii[layer] <= distance_g_traj)\
-                      and (distance_g_traj < j*g_radii[layer]):
-                        feats['gContXStd_x{}_s{}'.format(j,i)] += ((xy_pair[0] -\
-                                feats['gContXMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
-                        feats['gContYStd_x{}_s{}'.format(j,i)] += ((xy_pair[1] -\
-                                feats['gContYMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
-                        feats['gContLayerStd_x{}_s{}'.format(j,i)] += ((layer -\
-                            feats['gContLayerMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
+                        if ((j - 1)*e_radii[layer] <= distance_e_traj)\
+                          and (distance_e_traj < j*e_radii[layer]):
+                            feats['eContXStd_x{}_s{}'.format(j,i)] += ((xy_pair[0] -\
+                                    feats['eContXMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
+                            feats['eContYStd_x{}_s{}'.format(j,i)] += ((xy_pair[1] -\
+                                    feats['eContYMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
+                            feats['eContLayerStd_x{}_s{}'.format(j,i)] += ((layer -\
+                                feats['eContLayerMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
 
-                    if (distance_e_traj > j*e_radii[layer])\
-                      and (distance_g_traj > j*g_radii[layer]):
-                        feats['oContXStd_x{}_s{}'.format(j,i)] += ((xy_pair[0] -\
-                                feats['oContXMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
-                        feats['oContYStd_x{}_s{}'.format(j,i)] += ((xy_pair[1] -\
-                                feats['oContYMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
-                        feats['oContLayerStd_x{}_s{}'.format(j,i)] += ((layer -\
-                            feats['oContLayerMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
+                        if ((j - 1)*g_radii[layer] <= distance_g_traj)\
+                          and (distance_g_traj < j*g_radii[layer]):
+                            feats['gContXStd_x{}_s{}'.format(j,i)] += ((xy_pair[0] -\
+                                    feats['gContXMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
+                            feats['gContYStd_x{}_s{}'.format(j,i)] += ((xy_pair[1] -\
+                                    feats['gContYMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
+                            feats['gContLayerStd_x{}_s{}'.format(j,i)] += ((layer -\
+                                feats['gContLayerMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
+
+                        if (distance_e_traj > j*e_radii[layer])\
+                          and (distance_g_traj > j*g_radii[layer]):
+                            feats['oContXStd_x{}_s{}'.format(j,i)] += ((xy_pair[0] -\
+                                    feats['oContXMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
+                            feats['oContYStd_x{}_s{}'.format(j,i)] += ((xy_pair[1] -\
+                                    feats['oContYMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
+                            feats['oContLayerStd_x{}_s{}'.format(j,i)] += ((layer -\
+                                feats['oContLayerMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
 
     # Quotient out the total energies from the standard deviations if possible and take root
     for i in range(1, physTools.nSegments + 1):
