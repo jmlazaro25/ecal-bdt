@@ -186,8 +186,6 @@ def event_process(self):
     if e_targetHit != None:
         g_targPos, g_targP = physTools.gammaTargetInfo(e_targetHit)
     else:  # Should about never happen -> division by 0 in g_traj
-        # Print statement commented out for now because it's a little noisy
-        # print('No e at target SP!')
         g_targPos = g_targP = np.zeros(3)
 
     # Get electron and photon trajectories AND
@@ -209,6 +207,13 @@ def event_process(self):
                 if physTools.dist( cell[1:], g_traj[0] ) <= physTools.cell_radius:
                     g_fid = True
                     break
+    else:
+
+        if e_ecalHit != None:
+            e_traj = physTools.layerIntercepts(e_ecalPos, e_ecalP)
+
+        if e_targetHit != None:
+            g_traj = physTools.layerIntercepts(g_targPos, g_targP)
 
     ###################################
     # Compute extra BDT input variables
@@ -486,7 +491,6 @@ def event_process(self):
     if g_traj != None: # If no photon trajectory, leave this at the default
 
         # First currently unusued; pending further study; performance drop from  v9 and v12
-        #print(trackingHitList, g_traj)
         feats['firstNearPhLayer'], feats['nNearPhHits'] = mipTracking.nearPhotonInfo(
                                                             trackingHitList, g_traj )
     else: feats['nNearPhHits'] = feats['nReadoutHits']
@@ -530,7 +534,6 @@ def event_process(self):
         feats['recoilPT'] = None
 
     # Fill the tree (according to fiducial category) with values for this event
-    #print(e_fid, g_fid)
     if not self.separate:
         self.tfMakers['unsorted'].fillEvent(feats)
     else:

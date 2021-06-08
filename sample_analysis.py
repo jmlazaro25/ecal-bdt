@@ -56,7 +56,6 @@ recVsSimHitBranches = {
     'recHitAmplitude': {'address': np.zeros(1, dtype = float), 'rtype': float},
     'recHitEnergy'   : {'address': np.zeros(1, dtype = float), 'rtype': float},
     'simHitMatchEDep': {'address': np.zeros(1, dtype = float), 'rtype': float},
-    'totalSimEDep'   : {'address': np.zeros(1, dtype = float), 'rtype': float}
 }
 
 recHitBranches = {
@@ -66,7 +65,6 @@ recHitBranches = {
     'recHitLayer'    : {'address': np.zeros(1, dtype = int  ), 'rtype': int  },
     'recHitAmplitude': {'address': np.zeros(1, dtype = float), 'rtype': float},
     'recHitEnergy'   : {'address': np.zeros(1, dtype = float), 'rtype': float},
-    'totalSimEDep'   : {'address': np.zeros(1, dtype = float), 'rtype': float}
 }
 
 simHitBranches = {
@@ -75,7 +73,6 @@ simHitBranches = {
     'simHitZ'     : {'address': np.zeros(1, dtype = float), 'rtype': float},
     'simHitLayer' : {'address': np.zeros(1, dtype = int  ), 'rtype': int  },
     'simHitEDep'  : {'address': np.zeros(1, dtype = float), 'rtype': float},
-    'totalSimEDep': {'address': np.zeros(1, dtype = float), 'rtype': float}
 }
 
 simParticleBranches = {
@@ -86,7 +83,6 @@ simParticleBranches = {
     'pdgID'       : {'address': np.zeros(1, dtype = int  ), 'rtype': int  },
     'nParents'    : {'address': np.zeros(1, dtype = int  ), 'rtype': int  },
     'nDaughters'  : {'address': np.zeros(1, dtype = int  ), 'rtype': int  },
-    'totalSimEDep': {'address': np.zeros(1, dtype = float), 'rtype': float}
 }
 
 def main():
@@ -283,6 +279,13 @@ def event_process(self):
                 if physTools.dist( cell[1:], g_traj[0] ) <= physTools.cell_radius:
                     g_fid = True
                     break
+    else:
+
+        if e_ecalHit != None:
+            e_traj = physTools.layerIntercepts(e_ecalPos, e_ecalP)
+
+        if e_targetHit != None:
+            g_traj = physTools.layerIntercepts(g_targPos, g_targP)
 
     #################################################
     # Quantities needed for sample analysis
@@ -309,7 +312,6 @@ def event_process(self):
         recHitBranches['recHitLayer'    ]['address'][0] = physTools.ecal_layer(recHit)
         recHitBranches['recHitAmplitude']['address'][0] = recHit.getAmplitude()
         recHitBranches['recHitEnergy'   ]['address'][0] = recHit.getEnergy()
-        recHitBranches['totalSimEDep'   ]['address'][0] = feats['totalSimEDep']
 
         self.recHitInfo.Fill()
 
@@ -320,7 +322,6 @@ def event_process(self):
         simHitBranches['simHitZ'     ]['address'][0] = simHit.getPosition()[2]
         simHitBranches['simHitLayer' ]['address'][0] = physTools.ecal_layer(simHit)
         simHitBranches['simHitEDep'  ]['address'][0] = simHit.getEdep()
-        simHitBranches['totalSimEDep']['address'][0] = feats['totalSimEDep']
 
         self.simHitInfo.Fill()
 
@@ -333,7 +334,6 @@ def event_process(self):
         simParticleBranches['pdgID'       ]['address'][0] = simParticle.getPdgID()
         simParticleBranches['nParents'    ]['address'][0] = len(simParticle.getParents())
         simParticleBranches['nDaughters'  ]['address'][0] = len(simParticle.getDaughters())
-        simParticleBranches['totalSimEDep']['address'][0] = feats['totalSimEDep']
 
         self.simParticleInfo.Fill()
 
@@ -368,7 +368,6 @@ def event_process(self):
         recVsSimHitBranches['recHitAmplitude']['address'][0] = recHit.getAmplitude()
         recVsSimHitBranches['recHitEnergy'   ]['address'][0] = recHit.getEnergy()
         recVsSimHitBranches['simHitMatchEDep']['address'][0] = simHitMatchEDep
-        recVsSimHitBranches['totalSimEDep'   ]['address'][0] = feats['totalSimEDep']
 
         self.recVsSimHitInfo.Fill()
 
