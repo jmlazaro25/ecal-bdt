@@ -182,21 +182,26 @@ def event_process(self):
         print('no e at targ!')
         g_targPos = g_targP = np.zeros(3)
 
-    # Get electron and photon trajectories AND
-    # Fiducial categories (filtered into different output trees)
+    # Get electron and photon trajectories
     e_traj = g_traj = None
+
+    if e_ecalHit != None:
+        e_traj = physTools.layerIntercepts(e_ecalPos, e_ecalP)
+
+    if e_targetHit != None:
+        g_traj = physTools.layerIntercepts(g_targPos, g_targP)
+
+    # Fiducial categories (filtered into different output trees)
     if self.separate:
         e_fid = g_fid = False
 
-        if e_ecalHit != None:
-            e_traj = physTools.layerIntercepts(e_ecalPos, e_ecalP)
+        if e_traj != None:
             for cell in cellMap:
                 if physTools.dist( cell[1:], e_traj[0] ) <= physTools.cell_radius:
                     e_fid = True
                     break
 
-        if e_targetHit != None:
-            g_traj = physTools.layerIntercepts(g_targPos, g_targP)
+        if g_traj != None:
             for cell in cellMap:
                 if physTools.dist( cell[1:], g_traj[0] ) <= physTools.cell_radius:
                     g_fid = True
