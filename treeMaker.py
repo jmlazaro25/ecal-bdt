@@ -5,8 +5,7 @@ import numpy as np
 from mods import ROOTmanager as manager
 from mods import physTools, mipTracking
 cellMap = np.loadtxt('mods/cellmodule.txt')
-
-r.gSystem.Load('<path-to>/ldmx-sw/install/lib/libFramework.so')
+r.gSystem.Load('libFramework.so')
 
 # TreeModel to build here
 branches_info = {
@@ -510,7 +509,6 @@ def event_process(self):
                                 mst = 4, returnHitList = True)
 
     # Fill the tree (according to fiducial category) with values for this event
-    #print(e_fid, g_fid)
     if not self.separate:
         self.tfMakers['unsorted'].fillEvent(feats)
     else:

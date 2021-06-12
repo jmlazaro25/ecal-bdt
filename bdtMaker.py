@@ -30,8 +30,6 @@ class sampleContainer:
             if len(self.events) >= self.maxEvts:
                 continue
 
-            # Put all segmentation variables in for now (Take out the ones we won't need once
-            # we make sure that all the python bdt stuff works)
             evt = [
                     # Base variables
                     event.nReadoutHits              ,
