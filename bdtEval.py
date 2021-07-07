@@ -5,7 +5,7 @@ import pickle as pkl
 import xgboost as xgb
 import mods.ROOTmanager as manager
 
-pkl_file = '/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v3.0.0-w-container/bdt/training/bdt_train_out_0/bdt_train_out_0_weights.pkl'
+pkl_file = '/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v3.0.0-w-container/ecal-bdt/training/bdt_train_out_0/bdt_train_out_0_weights.pkl'
 model = pkl.load(open(pkl_file,'rb'))
 
 def main():
