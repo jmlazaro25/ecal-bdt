@@ -885,7 +885,7 @@ def event_process(self):
             self.tree.oContLayerStd_x3_s3       ,
             self.tree.oContLayerStd_x4_s3       ,
             self.tree.oContLayerStd_x5_s3       
-            ]
+    ]
 
     # Copy input tree feats to new tree
     for feat_name, feat_value in zip(self.tfMaker.branches_info, feats):

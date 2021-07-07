@@ -5,7 +5,7 @@ import numpy as np
 from mods import ROOTmanager as manager
 from mods import physTools, mipTracking
 
-cellMap = np.loadtxt('/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v3.0.0-w-container/bdt/mods/cellmodule.txt')
+cellMap = np.loadtxt('/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v3.0.0-w-container/ecal-bdt/mods/cellmodule.txt')
 r.gSystem.Load('/nfs/slac/g/ldmx/users/aechavez/ldmx-sw-v3.0.0-w-container/ldmx-sw/install/lib/libFramework.so')
 
 # TreeModel to build here
@@ -35,9 +35,9 @@ branches_info = {
         'epSep':                     {'rtype': float, 'default': 0.},
         'epDot':                     {'rtype': float, 'default': 0.},
         # Quantities needed for BDT analysis
-        'trigPass':                  {'rtype': int,   'default': 1 },
+        # 'trigPass':                  {'rtype': int,   'default': 1 },
         'recoilPT':                  {'rtype': float, 'default': 0.}
-        }
+}
 
 for i in range(1, physTools.nSegments + 1):
 
@@ -110,10 +110,10 @@ def main():
 
         # Branches needed
         proc.ecalVeto     = proc.addBranch('EcalVetoResult', 'EcalVeto_v12')
-        proc.trigResult   = proc.addBranch('TriggerResult', 'Trigger_v12')
         proc.targetSPHits = proc.addBranch('SimTrackerHit', 'TargetScoringPlaneHits_v12')
         proc.ecalSPHits   = proc.addBranch('SimTrackerHit', 'EcalScoringPlaneHits_v12')
         proc.ecalRecHits  = proc.addBranch('EcalHit', 'EcalRecHits_v12')
+        # proc.trigResult   = proc.addBranch('TriggerResult', 'Trigger_v12')
 
         # Tree/Files(s) to make
         print('\nRunning %s'%(proc.ID))
@@ -186,34 +186,33 @@ def event_process(self):
     if e_targetHit != None:
         g_targPos, g_targP = physTools.gammaTargetInfo(e_targetHit)
     else:  # Should about never happen -> division by 0 in g_traj
+        #print('no e at targ!')
         g_targPos = g_targP = np.zeros(3)
 
-    # Get electron and photon trajectories AND
-    # Fiducial categories (filtered into different output trees)
+    # Get electron and photon trajectories
     e_traj = g_traj = None
+
+    if e_ecalHit != None:
+        e_traj = physTools.layerIntercepts(e_ecalPos, e_ecalP)
+
+    if e_targetHit != None:
+        g_traj = physTools.layerIntercepts(g_targPos, g_targP)
+
+    # Fiducial categories (filtered into different output trees)
     if self.separate:
         e_fid = g_fid = False
 
-        if e_ecalHit != None:
-            e_traj = physTools.layerIntercepts(e_ecalPos, e_ecalP)
+        if e_traj != None:
             for cell in cellMap:
                 if physTools.dist( cell[1:], e_traj[0] ) <= physTools.cell_radius:
                     e_fid = True
                     break
 
-        if e_targetHit != None:
-            g_traj = physTools.layerIntercepts(g_targPos, g_targP)
+        if g_traj != None:
             for cell in cellMap:
                 if physTools.dist( cell[1:], g_traj[0] ) <= physTools.cell_radius:
                     g_fid = True
                     break
-    else:
-
-        if e_ecalHit != None:
-            e_traj = physTools.layerIntercepts(e_ecalPos, e_ecalP)
-
-        if e_targetHit != None:
-            g_traj = physTools.layerIntercepts(g_targPos, g_targP)
 
     ###################################
     # Compute extra BDT input variables
@@ -228,9 +227,9 @@ def event_process(self):
         g_traj_ends = [np.array([g_traj[0][0], g_traj[0][1], physTools.ecal_layerZs[0]    ]),
                        np.array([g_traj[-1][0], g_traj[-1][1], physTools.ecal_layerZs[-1] ])]
 
+        # Unused epDot and epSep
         e_norm  = physTools.unit( e_traj_ends[1] - e_traj_ends[0] )
         g_norm  = physTools.unit( g_traj_ends[1] - g_traj_ends[0] )
-
         feats['epSep'] = physTools.dist( e_traj_ends[0], g_traj_ends[0] )
         feats['epDot'] = physTools.dot(e_norm,g_norm)
 
@@ -419,7 +418,7 @@ def event_process(self):
                             feats['eContYStd_x{}_s{}'.format(j,i)] += ((xy_pair[1] -\
                                     feats['eContYMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
                             feats['eContLayerStd_x{}_s{}'.format(j,i)] += ((layer -\
-                                feats['eContLayerMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
+                                    feats['eContLayerMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
 
                         if ((j - 1)*g_radii[layer] <= distance_g_traj)\
                           and (distance_g_traj < j*g_radii[layer]):
@@ -428,7 +427,7 @@ def event_process(self):
                             feats['gContYStd_x{}_s{}'.format(j,i)] += ((xy_pair[1] -\
                                     feats['gContYMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
                             feats['gContLayerStd_x{}_s{}'.format(j,i)] += ((layer -\
-                                feats['gContLayerMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
+                                    feats['gContLayerMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
 
                         if (distance_e_traj > j*e_radii[layer])\
                           and (distance_g_traj > j*g_radii[layer]):
@@ -437,7 +436,7 @@ def event_process(self):
                             feats['oContYStd_x{}_s{}'.format(j,i)] += ((xy_pair[1] -\
                                     feats['oContYMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
                             feats['oContLayerStd_x{}_s{}'.format(j,i)] += ((layer -\
-                                feats['oContLayerMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
+                                    feats['oContLayerMean_x{}_s{}'.format(j,i)])**2)*hit.getEnergy()
 
     # Quotient out the total energies from the standard deviations if possible and take root
     for i in range(1, physTools.nSegments + 1):
@@ -450,7 +449,7 @@ def event_process(self):
             feats['layerStd_s{}'.format(i)] = math.sqrt(feats['layerStd_s{}'.format(i)]/\
                     feats['energy_s{}'.format(i)])
 
-        for j in range(1, physTools.nSegments + 1):
+        for j in range(1, physTools.nRegions + 1):
 
             if feats['eContEnergy_x{}_s{}'.format(j,i)] > 0:
                 feats['eContXStd_x{}_s{}'.format(j,i)] =\
@@ -485,12 +484,12 @@ def event_process(self):
                         math.sqrt(feats['oContLayerStd_x{}_s{}'.format(j,i)]/\
                         feats['oContEnergy_x{}_s{}'.format(j,i)])
 
-
     # Find the first layer of the ECal where a hit near the projected photon trajectory
     # AND the total number of hits around the photon trajectory
     if g_traj != None: # If no photon trajectory, leave this at the default
 
         # First currently unusued; pending further study; performance drop from  v9 and v12
+        #print(trackingHitList, g_traj)
         feats['firstNearPhLayer'], feats['nNearPhHits'] = mipTracking.nearPhotonInfo(
                                                             trackingHitList, g_traj )
     else: feats['nNearPhHits'] = feats['nReadoutHits']
@@ -512,7 +511,6 @@ def event_process(self):
         feats['fullTerritoryRatio'] = feats['fullPhotonTerritoryHits']/\
                                             feats['fullElectronTerritoryHits']
 
-
     # Find MIP tracks
     feats['straight4'], trackingHitList = mipTracking.findStraightTracks(
                                 trackingHitList, e_traj_ends, g_traj_ends,
@@ -523,7 +521,7 @@ def event_process(self):
     ##############################################
 
     # Get the trigger result
-    feats['trigPass'] = self.trigResult.passed()
+    # feats['trigPass'] = self.trigResult.passed()
 
     # Calculate recoilPT from e momentum at the target SP 
     e_targetHit = physTools.electronTargetSPHit(self.targetSPHits)

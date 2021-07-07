@@ -10,7 +10,6 @@ import matplotlib as plt
 from array    import array
 from optparse import OptionParser
 
-
 mpl_logger = logging.getLogger('matplotlib')
 mpl_logger.setLevel(logging.WARNING)
 plt.use('Agg')
@@ -30,8 +29,6 @@ class sampleContainer:
             if len(self.events) >= self.maxEvts:
                 continue
 
-            # Put all segmentation variables in for now (Take out the ones we won't need once
-            # we make sure that all the python bdt stuff works)
             evt = [
                     # Base variables
                     event.nReadoutHits              ,
@@ -445,7 +442,7 @@ class sampleContainer:
                     event.oContLayerStd_x3_s3       ,
                     event.oContLayerStd_x4_s3       ,
                     event.oContLayerStd_x5_s3       
-                    ]
+        ]
 
             self.events.append(evt)
 
