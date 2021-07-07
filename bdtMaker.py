@@ -442,7 +442,7 @@ class sampleContainer:
                     event.oContLayerStd_x3_s3       ,
                     event.oContLayerStd_x4_s3       ,
                     event.oContLayerStd_x5_s3       
-        ]
+            ]
 
             self.events.append(evt)
 
