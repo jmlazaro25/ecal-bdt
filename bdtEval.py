@@ -472,8 +472,6 @@ def event_process(self):
 
     # Feature list from input tree
     # Exp: feats = [ feat_value for feat_value in self.tree~ ]
-    # Put all segmentation variables in for now (Take out the ones we won't need once
-    # we make sure that all the python bdt stuff works)
     feats = [
             # Base variables
             self.tree.nReadoutHits              ,
